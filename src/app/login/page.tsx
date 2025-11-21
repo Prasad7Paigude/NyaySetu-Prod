@@ -1,7 +1,6 @@
 // app/login/page.tsx
-// Create this file at: app/login/page.tsx
-
 "use client";
+
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Label } from "@/components/ui/label";
@@ -10,37 +9,28 @@ import { cn } from "@/lib/utils";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { authClient } from "@/lib/auth-client";
 
-// Separate component that uses useSearchParams
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Form state
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  // UI states
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Check for success message from signup verification
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
       setSuccess("Email verified successfully! You can now log in.");
     }
   }, [searchParams]);
 
-  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  // ============================================
-  // LOGIN FORM SUBMISSION
-  // ============================================
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -48,19 +38,28 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const { data, error } = await authClient.signIn.email({
+      const { data, error: signInError } = await authClient.signIn.email({
         email: formData.email,
         password: formData.password,
       });
 
-      if (error) {
-        throw new Error(error.message || "Login failed");
+      if (signInError) {
+        if (signInError.status === 403) {
+          setError("Please verify your email before logging in.");
+          return;
+        }
+        throw new Error(signInError.message || "Login failed");
       }
 
-      setSuccess("Login successful! Redirecting...");
-      router.push("/dashboard"); // redirect to dashboard
+      if (data) {
+        setSuccess("Login successful! Redirecting...");
+        
+        // Use window.location for hard redirect to ensure cookies are set
+        window.location.href = "/dashboard";
+      }
 
     } catch (err) {
+      console.error("Login error:", err);
       setError(err instanceof Error ? err.message : "Invalid email or password");
     } finally {
       setLoading(false);
@@ -75,14 +74,12 @@ function LoginForm() {
           Login to Nyaysetu AI
         </p>
 
-        {/* Success Message */}
         {success && (
           <div className="mt-4 p-3 rounded-md bg-green-500/10 border border-green-500/50">
             <p className="text-sm text-green-500">{success}</p>
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="mt-4 p-3 rounded-md bg-red-500/10 border border-red-500/50">
             <p className="text-sm text-red-500">{error}</p>
@@ -90,11 +87,8 @@ function LoginForm() {
         )}
 
         <form className="my-6 space-y-4" onSubmit={handleSubmit}>
-          {/* Email Field */}
           <LabelInputContainer>
-            <Label htmlFor="email" className="text-white">
-              Email
-            </Label>
+            <Label htmlFor="email" className="text-white">Email</Label>
             <Input
               id="email"
               placeholder="abc@gmail.com"
@@ -107,11 +101,8 @@ function LoginForm() {
             />
           </LabelInputContainer>
 
-          {/* Password Field */}
           <LabelInputContainer>
-            <Label htmlFor="password" className="text-white">
-              Password
-            </Label>
+            <Label htmlFor="password" className="text-white">Password</Label>
             <Input
               id="password"
               placeholder="••••••••"
@@ -124,7 +115,6 @@ function LoginForm() {
             />
           </LabelInputContainer>
 
-          {/* Submit Button */}
           <div className="flex flex-col items-center space-y-2 mt-4">
             <button
               type="submit"
@@ -137,16 +127,12 @@ function LoginForm() {
 
             <p className="text-sm text-gray-400 mt-2">
               Don&apos;t have an account?{" "}
-              <a href="/signup" className="text-cyan-500 hover:underline">
-                Sign up
-              </a>
+              <a href="/signup" className="text-cyan-500 hover:underline">Sign up</a>
             </p>
           </div>
 
-          {/* Divider */}
           <div className="my-6 h-[1px] w-full bg-gradient-to-r from-transparent via-gray-600 to-transparent" />
 
-          {/* Social Login Buttons (Disabled for now) */}
           <div className="flex flex-col space-y-4">
             <button
               type="button"
@@ -171,9 +157,6 @@ function LoginForm() {
   );
 }
 
-// ============================================
-// MAIN LOGIN PAGE COMPONENT
-// ============================================
 const LoginPage = () => {
   return (
     <Suspense fallback={
@@ -185,10 +168,6 @@ const LoginPage = () => {
     </Suspense>
   );
 };
-
-// ============================================
-// HELPER COMPONENTS
-// ============================================
 
 const BottomGradient = () => (
   <>
@@ -204,9 +183,7 @@ const LabelInputContainer = ({
   children: React.ReactNode;
   className?: string;
 }) => (
-  <div className={cn("flex w-full flex-col space-y-2", className)}>
-    {children}
-  </div>
+  <div className={cn("flex w-full flex-col space-y-2", className)}>{children}</div>
 );
 
 export default LoginPage;

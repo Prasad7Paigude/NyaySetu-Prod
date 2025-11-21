@@ -1,6 +1,4 @@
 // lib/auth.ts
-// Create this file at: lib/auth.ts
-
 import { betterAuth } from "better-auth";
 import { emailOTP } from "better-auth/plugins";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
@@ -22,32 +20,36 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // BETTER AUTH CONFIGURATION
 // ============================================
 export const auth = betterAuth({
-  // Database adapter for MongoDB
   database: mongodbAdapter(db),
+  
+  // Base URL - must match your deployment
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  
+  // Secret for signing tokens
+  secret: process.env.BETTER_AUTH_SECRET,
+  
+  // Trusted origins for CORS
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://nyay-setu-prod.vercel.app",
+    process.env.BETTER_AUTH_URL || "",
+    process.env.NEXT_PUBLIC_APP_URL || "",
+  ].filter(Boolean),
 
-  // Base URL of your app
-  // Robustly handle missing protocol in env vars
-  baseURL: (() => {
-    const url = process.env.BETTER_AUTH_URL || process.env.VERCEL_URL || "http://localhost:3000";
-    if (url.startsWith("http")) return url;
-    return `https://${url}`;
-  })(),
-
-  // Email and password authentication settings
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true, // User must verify email before login
+    requireEmailVerification: true,
     minPasswordLength: 6,
-    autoSignIn: false, // Don't auto sign in after signup
+    autoSignIn: false,
   },
 
-  // Add custom fields to user
   user: {
     additionalFields: {
       firstName: {
         type: "string",
-        required: false, // Set to false to avoid signup errors
-        input: true,     // Allow this field to be set during signup
+        required: false,
+        input: true,
       },
       lastName: {
         type: "string",
@@ -57,19 +59,16 @@ export const auth = betterAuth({
     },
   },
 
-  // Plugins
   plugins: [
     emailOTP({
-      otpLength: 6,                    // 6-digit OTP
-      expiresIn: 300,                  // OTP expires in 5 minutes (300 seconds)
-      sendVerificationOnSignUp: true,  // Auto-send OTP on signup
+      otpLength: 6,
+      expiresIn: 300,
+      sendVerificationOnSignUp: true,
 
-      // Function to send OTP via email
       async sendVerificationOTP({ email, otp, type }) {
         let subject = "";
         let message = "";
 
-        // Different messages for different OTP types
         if (type === "email-verification") {
           subject = "Verify your email - Nyaysetu AI";
           message = "Please use this code to verify your email address.";
@@ -81,19 +80,12 @@ export const auth = betterAuth({
           message = "Please use this code to reset your password.";
         }
 
-        // Send email using Resend
-        // IMPORTANT: On Resend free tier, you can only:
-        // 1. Send to your own verified email, OR
-        // 2. Use "onboarding@resend.dev" as the from address
-        // 3. Add and verify your own domain for production
-
         console.log(`📧 Attempting to send OTP to: ${email}`);
-        console.log(`📧 OTP Code: ${otp}`); // Remove this in production!
+        console.log(`📧 OTP Code: ${otp}`); // Remove in production
 
         try {
           const emailResponse = await resend.emails.send({
-            // from: "Nyaysetu AI <onboarding@resend.dev>", // This is Resend's test sender
-            from: "Nyaysetu AI <NyaysetuAI@shivrajtaware.in>", // This is custom sender
+            from: "Nyaysetu AI <NyaysetuAI@shivrajtaware.in>",
             to: email,
             subject: subject,
             html: `
@@ -121,27 +113,14 @@ export const auth = betterAuth({
               </html>
             `,
           });
-          console.log(`OTP sent to ${email}`);
+          console.log(`✅ OTP sent successfully to ${email}`, emailResponse);
         } catch (error) {
-          console.error("Failed to send OTP email:", error);
+          console.error("❌ Failed to send OTP email:", error);
           throw new Error("Failed to send verification email");
         }
       },
     }),
   ],
-
-  // Social providers (uncomment when ready to add)
-  // socialProviders: {
-  //   google: {
-  //     clientId: process.env.GOOGLE_CLIENT_ID!,
-  //     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  //   },
-  //   github: {
-  //     clientId: process.env.GITHUB_CLIENT_ID!,
-  //     clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-  //   },
-  // },
 });
 
-// Export session type for TypeScript
 export type Session = typeof auth.$Infer.Session;

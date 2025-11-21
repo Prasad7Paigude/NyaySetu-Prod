@@ -1,4 +1,6 @@
+// app/signup/page.tsx
 "use client";
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
@@ -6,19 +8,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { authClient } from "@/lib/auth-client";
-
-interface SignupBody {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
-
-interface SignupResponse {
-  message: string;
-  user?: { id: string; email: string; firstName?: string; lastName?: string };
-  otpSent?: boolean;
-}
 
 const SignupPage = () => {
   const router = useRouter();
@@ -40,7 +29,7 @@ const SignupPage = () => {
   };
 
   // ============================================
-  // SIGNUP FORM SUBMISSION
+  // STEP 1: SIGNUP FORM SUBMISSION
   // ============================================
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,30 +46,40 @@ const SignupPage = () => {
     }
 
     setLoading(true);
+    
     try {
-      const { data, error } = await authClient.signUp.email({
+      // Call Better Auth signup with custom fields
+      const { data, error: signUpError } = await authClient.signUp.email({
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
+      }, {
+        body: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }
       });
 
-      if (error) {
-        throw new Error(error.message || "Signup failed");
+      if (signUpError) {
+        throw new Error(signUpError.message || "Signup failed");
       }
 
-      // Better Auth handles the flow, check if we need to verify email
-      // Usually it returns data if successful
+      console.log("Signup successful, moving to OTP verification");
+      
+      // Move to OTP verification step
+      // OTP is automatically sent because sendVerificationOnSignUp: true
       setStep("verify");
-
+      
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Signup failed");
+      console.error("Signup error:", err);
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
   // ============================================
-  // OTP VERIFICATION
+  // STEP 2: OTP VERIFICATION
   // ============================================
   const handleVerifyOTP = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -88,51 +87,49 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await authClient.emailOtp.verifyEmail({
+      const { data, error: verifyError } = await authClient.emailOtp.verifyEmail({
         email: formData.email,
-        otp,
+        otp: otp,
       });
 
-      if (error) {
-        throw new Error(error.message || "Invalid OTP");
+      if (verifyError) {
+        throw new Error(verifyError.message || "Verification failed");
       }
 
-      router.push("/login?verified=true");
-
+      console.log("Email verified successfully");
+      
+      // Redirect to login page using window.location for hard redirect
+      window.location.href = "/login?verified=true";
+      
     } catch (err) {
+      console.error("OTP verification error:", err);
       setError(err instanceof Error ? err.message : "Invalid OTP");
     } finally {
       setLoading(false);
     }
   };
 
+  // ============================================
+  // RESEND OTP
+  // ============================================
   const handleResendOTP = async () => {
     setError("");
     setLoading(true);
+    
     try {
-      // Note: better-auth might not have a direct resend OTP method exposed on client easily 
-      // without looking at docs, but usually it's sending verification email again.
-      // For now, we'll assume the user can just try to sign in or we use a specific method if available.
-      // Checking auth-client.ts, we have emailOtp plugin.
-      // Let's try to use the same signUp method or a specific resend method if it exists.
-      // Actually, better-auth often handles resend via a separate call or just re-triggering.
-      // Since we don't have the exact method for resend in the context, we will try to use 
-      // authClient.emailOtp.sendVerificationOtp if available or just alert user.
-
-      // Fallback: tell user to check email or try signing up again if expired.
-      // But wait, let's try to find a sendVerificationOTP method on the client plugin.
-      // If not found, we might need to skip this or implement a server action.
-      // For now, let's comment out the implementation or try a best guess.
-
-      // Using a generic approach:
-      await authClient.signIn.email({
+      const { error: resendError } = await authClient.emailOtp.sendVerificationOtp({
         email: formData.email,
-        password: formData.password,
+        type: "email-verification",
       });
-      // This usually triggers a new OTP if email is not verified.
-
-      alert("If your account exists and is unverified, a new OTP has been sent.");
+      
+      if (resendError) {
+        throw new Error(resendError.message);
+      }
+      
+      alert("New OTP sent to your email!");
+      
     } catch (err) {
+      console.error("Resend OTP error:", err);
       setError(err instanceof Error ? err.message : "Failed to resend OTP");
     } finally {
       setLoading(false);
@@ -140,7 +137,7 @@ const SignupPage = () => {
   };
 
   // ============================================
-  // RENDER
+  // RENDER: OTP VERIFICATION SCREEN
   // ============================================
   if (step === "verify") {
     return (
@@ -148,7 +145,8 @@ const SignupPage = () => {
         <div className="shadow-input mx-auto w-full max-w-md rounded-2xl p-6 md:p-8 bg-[#171717]">
           <h2 className="text-xl font-bold text-white">Verify Your Email</h2>
           <p className="mt-2 text-sm text-gray-300">
-            We have sent a 6-digit code to <span className="text-cyan-500">{formData.email}</span>
+            We have sent a 6-digit code to{" "}
+            <span className="text-cyan-500">{formData.email}</span>
           </p>
 
           {error && <ErrorBox message={error} />}
@@ -173,7 +171,7 @@ const SignupPage = () => {
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="group/btn relative h-10 w-48 rounded-md bg-black text-white font-medium shadow transition duration-300 disabled:opacity-50"
+                className="group/btn relative h-10 w-48 rounded-md bg-black text-white font-medium shadow-[0px_1px_0px_0px_#00000040_inset,0px_-1px_0px_0px_#00000040_inset] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Verifying..." : "Verify Email →"}
                 <BottomGradient />
@@ -202,12 +200,17 @@ const SignupPage = () => {
     );
   }
 
-  // Signup Form
+  // ============================================
+  // RENDER: SIGNUP FORM
+  // ============================================
   return (
     <div className="flex items-center justify-center p-8 min-h-screen bg-black">
       <div className="shadow-input mx-auto w-full max-w-md rounded-2xl p-6 md:p-8 bg-[#171717]">
         <h2 className="text-xl font-bold text-white">Welcome to Nyaysetu AI</h2>
-        <p className="mt-2 max-w-sm text-sm text-gray-300">Create your account to get started</p>
+        <p className="mt-2 max-w-sm text-sm text-gray-300">
+          Create your account to get started
+        </p>
+
         {error && <ErrorBox message={error} />}
 
         <form className="my-8" onSubmit={handleSubmit}>
@@ -287,7 +290,7 @@ const SignupPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group/btn relative h-10 w-48 rounded-md bg-black text-white font-medium shadow transition duration-300 disabled:opacity-50"
+              className="group/btn relative h-10 w-48 rounded-md bg-black text-white font-medium shadow-[0px_1px_0px_0px_#00000040_inset,0px_-1px_0px_0px_#00000040_inset] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing up..." : "Sign up →"}
               <BottomGradient />
@@ -297,6 +300,27 @@ const SignupPage = () => {
               Already have an account?{" "}
               <a href="/login" className="text-cyan-500 hover:underline">Login</a>
             </p>
+          </div>
+
+          <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-gray-600 to-transparent" />
+
+          <div className="flex flex-col space-y-4">
+            <button
+              type="button"
+              disabled
+              className="group/btn opacity-50 cursor-not-allowed shadow-input relative flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 font-medium text-white"
+            >
+              <IconBrandGithub className="h-4 w-4 text-white" />
+              <span className="text-sm text-white">GitHub (Coming Soon)</span>
+            </button>
+            <button
+              type="button"
+              disabled
+              className="group/btn opacity-50 cursor-not-allowed shadow-input relative flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 font-medium text-white"
+            >
+              <IconBrandGoogle className="h-4 w-4 text-white" />
+              <span className="text-sm text-white">Google (Coming Soon)</span>
+            </button>
           </div>
         </form>
       </div>
@@ -309,8 +333,8 @@ const SignupPage = () => {
 // ============================================
 const BottomGradient = () => (
   <>
-    <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition-opacity duration-500 group-hover/btn:opacity-100" />
-    <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition-opacity duration-500 group-hover/btn:opacity-100" />
+    <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+    <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
   </>
 );
 
@@ -321,9 +345,7 @@ const LabelInputContainer = ({
   children: React.ReactNode;
   className?: string;
 }) => (
-  <div className={cn("flex w-full flex-col space-y-2", className)}>
-    {children}
-  </div>
+  <div className={cn("flex w-full flex-col space-y-2", className)}>{children}</div>
 );
 
 const ErrorBox = ({ message }: { message: string }) => (

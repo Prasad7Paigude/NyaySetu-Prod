@@ -4,9 +4,10 @@ import { emailOTPClient } from "better-auth/client/plugins";
 
 // Create the auth client with email OTP plugin
 export const authClient = createAuthClient({
-  // Remove baseURL or leave undefined for same-domain relative calls
-  // baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-
+  // Use environment variable or fallback
+  // On client-side, NEXT_PUBLIC_ vars are available
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  
   // Add email OTP client plugin
   plugins: [
     emailOTPClient(),
@@ -15,9 +16,9 @@ export const authClient = createAuthClient({
 
 // Export individual methods for easier imports
 export const {
-  signIn,      // Sign in methods
-  signUp,      // Sign up methods  
-  signOut,     // Sign out method
-  useSession,  // React hook to get current session
-  emailOtp,    // Email OTP methods
+  signIn,
+  signUp,
+  signOut,
+  useSession,
+  emailOtp,
 } = authClient;
