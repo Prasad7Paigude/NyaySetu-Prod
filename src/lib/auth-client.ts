@@ -7,7 +7,7 @@ import { emailOTPClient } from "better-auth/client/plugins";
 // Create the auth client with email OTP plugin
 export const authClient = createAuthClient({
   // Base URL of your server (optional if same domain)
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
   
   // Add email OTP client plugin
   plugins: [
