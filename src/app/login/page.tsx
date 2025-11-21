@@ -1,8 +1,8 @@
 // app/login/page.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -11,14 +11,15 @@ import { authClient } from "@/lib/auth-client";
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Show email verified message if redirected after verification
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
       setSuccess("Email verified successfully! You can now log in.");
@@ -36,29 +37,38 @@ function LoginForm() {
     setLoading(true);
 
     try {
+      console.log("Attempting login...");
+
       const { data, error: signInError } = await authClient.signIn.email({
         email: formData.email,
         password: formData.password,
       });
 
+      console.log("Login response:", { data, error: signInError });
+
       if (signInError) {
         if (signInError.status === 403) {
           setError("Please verify your email before logging in.");
-        } else {
-          setError(signInError.message || "Login failed");
+          setLoading(false);
+          return;
         }
-        setLoading(false);
-        return;
+        throw new Error(signInError.message || "Login failed");
       }
 
-      if (data?.user) {
+      if (data && data.user) {
         setSuccess("Login successful! Redirecting to dashboard...");
-        // Force full page reload to pick up session cookie
-        window.location.assign("/dashboard");
+        console.log("Login successful, user:", data.user.email);
+
+        // Wait for cookie to be properly set by nextCookies plugin
+        // Then do a full page navigation
+        setTimeout(() => {
+          console.log("Redirecting now...");
+          window.location.href = "/dashboard";
+        }, 1000);
       } else {
-        setError("Login failed - no user data returned");
-        setLoading(false);
+        throw new Error("Login failed - no user data returned");
       }
+
     } catch (err) {
       console.error("Login error:", err);
       setError(err instanceof Error ? err.message : "Invalid email or password");
@@ -79,6 +89,7 @@ function LoginForm() {
             <p className="text-sm text-green-500">{success}</p>
           </div>
         )}
+
         {error && (
           <div className="mt-4 p-3 rounded-md bg-red-500/10 border border-red-500/50">
             <p className="text-sm text-red-500">{error}</p>
@@ -90,8 +101,8 @@ function LoginForm() {
             <Label htmlFor="email" className="text-white">Email</Label>
             <Input
               id="email"
-              type="email"
               placeholder="abc@gmail.com"
+              type="email"
               value={formData.email}
               onChange={handleChange}
               required
@@ -105,8 +116,8 @@ function LoginForm() {
             <Label htmlFor="password" className="text-white">Password</Label>
             <Input
               id="password"
-              type="password"
               placeholder="••••••••"
+              type="password"
               value={formData.password}
               onChange={handleChange}
               required
@@ -158,7 +169,17 @@ function LoginForm() {
   );
 }
 
-const LoginPage = () => <LoginForm />;
+const LoginPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  );
+};
 
 const BottomGradient = () => (
   <>
