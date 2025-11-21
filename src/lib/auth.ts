@@ -26,7 +26,12 @@ export const auth = betterAuth({
   database: mongodbAdapter(db),
 
   // Base URL of your app
-  baseURL: process.env.BETTER_AUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
+  // Robustly handle missing protocol in env vars
+  baseURL: (() => {
+    const url = process.env.BETTER_AUTH_URL || process.env.VERCEL_URL || "http://localhost:3000";
+    if (url.startsWith("http")) return url;
+    return `https://${url}`;
+  })(),
 
   // Email and password authentication settings
   emailAndPassword: {
