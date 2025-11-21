@@ -24,8 +24,18 @@ export const auth = betterAuth({
   database: mongodbAdapter(db),
 
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-
   secret: process.env.BETTER_AUTH_SECRET,
+
+  // ✅ COOKIE CONFIGURATION FOR VERCEL
+  cookies: {
+    sessionToken: {
+      name: "session",          // Cookie name Better Auth uses
+      domain: ".vercel.app",    // Vercel production domain
+      secure: true,             // Required for HTTPS
+      sameSite: "lax",
+      path: "/",
+    },
+  },
 
   trustedOrigins: [
     "http://localhost:3000",
@@ -44,26 +54,19 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      firstName: {
-        type: "string",
-        required: false,
-        input: true,
-      },
-      lastName: {
-        type: "string",
-        required: false,
-        input: true,
-      },
+      firstName: { type: "string", required: false, input: true },
+      lastName: { type: "string", required: false, input: true },
     },
   },
 
   plugins: [
-    // IMPORTANT: nextCookies() plugin is required for proper cookie handling in Next.js
+    // Required for Next.js cookie handling
     nextCookies(),
-    
+
+    // OTP plugin for email verification / sign-in
     emailOTP({
       otpLength: 6,
-      expiresIn: 300,
+      expiresIn: 300, // 5 minutes
       sendVerificationOnSignUp: true,
 
       async sendVerificationOTP({ email, otp, type }) {
@@ -81,31 +84,29 @@ export const auth = betterAuth({
           message = "Please use this code to reset your password.";
         }
 
-        console.log(`📧 Attempting to send OTP to: ${email}`);
-        console.log(`📧 OTP Code: ${otp}`);
+        console.log(`📧 Sending OTP to: ${email}`);
+        console.log(`📧 OTP: ${otp}`);
 
         try {
-          const emailResponse = await resend.emails.send({
+          await resend.emails.send({
             from: "Nyaysetu AI <NyaysetuAI@shivrajtaware.in>",
             to: email,
-            subject: subject,
+            subject,
             html: `
               <!DOCTYPE html>
               <html>
                 <head>
-                  <meta charset="utf-8">
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <meta charset="utf-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 </head>
                 <body style="font-family: Arial, sans-serif; background-color: #000000; padding: 40px 20px;">
                   <div style="max-width: 500px; margin: 0 auto; background-color: #171717; border-radius: 16px; padding: 40px;">
                     <h1 style="color: #0891b2; margin: 0 0 10px 0; font-size: 24px;">Nyaysetu AI</h1>
                     <p style="color: #d1d5db; margin: 0 0 30px 0; font-size: 14px;">${message}</p>
-                    
                     <div style="background-color: #000000; border-radius: 12px; padding: 30px; text-align: center; margin: 20px 0;">
                       <p style="color: #9ca3af; margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Your verification code</p>
                       <p style="color: #0891b2; font-size: 36px; font-weight: bold; letter-spacing: 8px; margin: 0;">${otp}</p>
                     </div>
-                    
                     <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0 0;">
                       This code expires in 5 minutes. If you didn't request this code, please ignore this email.
                     </p>
@@ -114,7 +115,7 @@ export const auth = betterAuth({
               </html>
             `,
           });
-          console.log(`✅ OTP sent successfully to ${email}`, emailResponse);
+          console.log(`✅ OTP sent successfully to ${email}`);
         } catch (error) {
           console.error("❌ Failed to send OTP email:", error);
           throw new Error("Failed to send verification email");

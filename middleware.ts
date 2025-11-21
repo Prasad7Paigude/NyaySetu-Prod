@@ -26,12 +26,12 @@ export function middleware(request: NextRequest) {
   // Use Better Auth's getSessionCookie helper
   // This checks for the "better-auth.session_token" cookie
   const sessionCookie = getSessionCookie(request, {
-    cookieName: "session_token",
-    cookiePrefix: "better-auth",
-  });
+  cookieName: "session",
+  cookiePrefix: "better-auth",
+});
 
   // Fallback: also check manually in case getSessionCookie has issues
-  const manualCookie = request.cookies.get("better-auth.session_token")?.value;
+  const manualCookie = request.cookies.get("better-auth.session")?.value;
   
   const isAuthenticated = !!(sessionCookie || manualCookie);
 
