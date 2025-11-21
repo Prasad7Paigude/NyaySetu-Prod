@@ -1,8 +1,7 @@
-// app/login/page.tsx
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -11,6 +10,7 @@ import { authClient } from "@/lib/auth-client";
 
 function LoginForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -55,16 +55,20 @@ function LoginForm() {
         throw new Error(signInError.message || "Login failed");
       }
 
-      if (data && data.user) {
+      if (data) {
         setSuccess("Login successful! Redirecting to dashboard...");
         console.log("Login successful, user:", data.user.email);
 
-        // Wait for cookie to be properly set by nextCookies plugin
-        // Then do a full page navigation
-        setTimeout(() => {
-          console.log("Redirecting now...");
-          window.location.href = "/dashboard";
-        }, 1000);
+        // Verify session is established before redirecting
+        const session = await authClient.getSession();
+
+        if (session) {
+          console.log("Session verified, redirecting...");
+          router.refresh(); // Refresh to update middleware/server state
+          router.push("/dashboard");
+        } else {
+          throw new Error("Session creation failed. Please try again.");
+        }
       } else {
         throw new Error("Login failed - no user data returned");
       }
