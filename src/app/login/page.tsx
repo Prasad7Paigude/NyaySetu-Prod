@@ -38,25 +38,21 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const { data, error: signInError } = await authClient.signIn.email({
+      const result = await authClient.signIn.email({
         email: formData.email,
         password: formData.password,
       });
 
-      if (signInError) {
-        if (signInError.status === 403) {
-          setError("Please verify your email before logging in.");
-          return;
-        }
-        throw new Error(signInError.message || "Login failed");
+      if (result.error) {
+        throw new Error(result.error.message || "Login failed");
       }
 
-      if (data) {
-        setSuccess("Login successful! Redirecting...");
+      setSuccess("Login successful! Redirecting...");
 
-        // Use window.location for hard redirect to ensure cookies are set
-        window.location.href = "/dashboard";
-      }
+      // Small delay to show success message
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
 
     } catch (err) {
       console.error("Login error:", err);
