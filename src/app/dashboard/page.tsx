@@ -9,66 +9,39 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    const checkSession = async () => {
+    const checkAuth = async () => {
       try {
-        console.log("Dashboard: Checking session...");
-
-        const { data: session, error } = await authClient.getSession();
-
-        console.log("Dashboard: Session result:", { session, error });
-
-        if (!mounted) return;
-
-        if (error) {
-          console.error("Dashboard: Session error:", error);
-          window.location.replace("/login");
+        const { data, error } = await authClient.getSession();
+        
+        // Check for user in response (not session)
+        if (error || !data?.user) {
+          window.location.href = "/login";
           return;
         }
 
-        if (session?.user) {
-          console.log("Dashboard: User found:", session.user.email);
-          setUser(session.user);
-          setLoading(false);
-        } else {
-          console.log("Dashboard: No user in session, redirecting...");
-          window.location.replace("/login");
-        }
+        setUser(data.user);
+        setLoading(false);
       } catch (err) {
-        console.error("Dashboard: Failed to get session:", err);
-        if (mounted) {
-          window.location.replace("/login");
-        }
+        window.location.href = "/login";
       }
     };
 
-    // Small delay to ensure cookies are available after redirect
-    const timer = setTimeout(() => {
-      checkSession();
-    }, 200);
-
-    return () => {
-      mounted = false;
-      clearTimeout(timer);
-    };
+    checkAuth();
   }, []);
 
   const handleLogout = async () => {
     try {
-      console.log("Logging out...");
       await authClient.signOut();
-      window.location.replace("/login");
-    } catch (err) {
-      console.error("Logout error:", err);
-      window.location.replace("/login");
+    } catch (e) {
+      // Ignore errors
     }
+    window.location.href = "/login";
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="text-white text-xl">Loading dashboard...</div>
+        <div className="text-white text-xl">Loading...</div>
       </div>
     );
   }
@@ -78,9 +51,7 @@ export default function DashboardPage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-[#171717] rounded-2xl p-8">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-white">
-              Welcome to Dashboard
-            </h1>
+            <h1 className="text-2xl font-bold text-white">Welcome to Dashboard</h1>
             <button
               onClick={handleLogout}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
@@ -90,10 +61,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="bg-black/50 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-cyan-500 mb-4">
-              User Information
-            </h2>
-
+            <h2 className="text-lg font-semibold text-cyan-500 mb-4">User Information</h2>
             <div className="space-y-3">
               <div className="flex">
                 <span className="text-gray-400 w-24">Name:</span>

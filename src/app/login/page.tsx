@@ -11,14 +11,28 @@ import { authClient } from "@/lib/auth-client";
 
 function LoginForm() {
   const searchParams = useSearchParams();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  // Check if already logged in on page load
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data } = await authClient.getSession();
+        if (data?.user) {
+          window.location.href = "/dashboard";
+          return;
+        }
+      } catch (e) {
+        // Not logged in
+      }
+      setInitialLoading(false);
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
@@ -37,14 +51,10 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      console.log("Attempting login...");
-
       const { data, error: signInError } = await authClient.signIn.email({
         email: formData.email,
         password: formData.password,
       });
-
-      console.log("Login response:", { data, error: signInError });
 
       if (signInError) {
         if (signInError.status === 403) {
@@ -55,34 +65,32 @@ function LoginForm() {
         throw new Error(signInError.message || "Login failed");
       }
 
-      if (data && data.user) {
-        setSuccess("Login successful! Redirecting to dashboard...");
-        console.log("Login successful, user:", data.user.email);
-
-        // Wait for cookie to be properly set by nextCookies plugin
-        // Then do a full page navigation
-        setTimeout(() => {
-          console.log("Redirecting now...");
-          window.location.href = "/dashboard";
-        }, 1000);
+      // Check for user in response (Better Auth returns { user, token, ... })
+      if (data?.user) {
+        setSuccess("Login successful! Redirecting...");
+        window.location.href = "/dashboard";
       } else {
-        throw new Error("Login failed - no user data returned");
+        throw new Error("Login failed - no user data");
       }
-
     } catch (err) {
-      console.error("Login error:", err);
-      setError(err instanceof Error ? err.message : "Invalid email or password");
+      setError(err instanceof Error ? err.message : "Invalid credentials");
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center p-8 bg-black min-h-screen">
       <div className="shadow-input mx-auto w-full max-w-md rounded-2xl p-6 md:p-8 bg-[#171717]">
         <h2 className="text-xl font-bold text-white">Welcome Back</h2>
-        <p className="mt-2 max-w-sm text-sm text-gray-300">
-          Login to Nyaysetu AI
-        </p>
+        <p className="mt-2 max-w-sm text-sm text-gray-300">Login to Nyaysetu AI</p>
 
         {success && (
           <div className="mt-4 p-3 rounded-md bg-green-500/10 border border-green-500/50">
@@ -107,7 +115,7 @@ function LoginForm() {
               onChange={handleChange}
               required
               disabled={loading}
-              className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
+              className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
               style={{ backgroundColor: "#171717", borderColor: "#3A3A3A" }}
             />
           </LabelInputContainer>
@@ -122,7 +130,7 @@ function LoginForm() {
               onChange={handleChange}
               required
               disabled={loading}
-              className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
+              className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
               style={{ backgroundColor: "#171717", borderColor: "#3A3A3A" }}
             />
           </LabelInputContainer>
@@ -146,21 +154,13 @@ function LoginForm() {
           <div className="my-6 h-[1px] w-full bg-gradient-to-r from-transparent via-gray-600 to-transparent" />
 
           <div className="flex flex-col space-y-4">
-            <button
-              type="button"
-              disabled
-              className="group relative flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 font-medium text-white opacity-50 cursor-not-allowed"
-            >
-              <IconBrandGithub className="h-4 w-4 text-white" />
-              <span className="text-sm text-white">GitHub (Coming Soon)</span>
+            <button type="button" disabled className="flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 text-white opacity-50 cursor-not-allowed">
+              <IconBrandGithub className="h-4 w-4" />
+              <span className="text-sm">GitHub (Coming Soon)</span>
             </button>
-            <button
-              type="button"
-              disabled
-              className="group relative flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 font-medium text-white opacity-50 cursor-not-allowed"
-            >
-              <IconBrandGoogle className="h-4 w-4 text-white" />
-              <span className="text-sm text-white">Google (Coming Soon)</span>
+            <button type="button" disabled className="flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 text-white opacity-50 cursor-not-allowed">
+              <IconBrandGoogle className="h-4 w-4" />
+              <span className="text-sm">Google (Coming Soon)</span>
             </button>
           </div>
         </form>
@@ -169,17 +169,11 @@ function LoginForm() {
   );
 }
 
-const LoginPage = () => {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="text-white">Loading...</div>
-      </div>
-    }>
-      <LoginForm />
-    </Suspense>
-  );
-};
+const LoginPage = () => (
+  <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="text-white">Loading...</div></div>}>
+    <LoginForm />
+  </Suspense>
+);
 
 const BottomGradient = () => (
   <>
@@ -188,13 +182,7 @@ const BottomGradient = () => (
   </>
 );
 
-const LabelInputContainer = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => (
+const LabelInputContainer = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div className={cn("flex w-full flex-col space-y-2", className)}>{children}</div>
 );
 
