@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandGoogle, IconMail, IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { authClient } from "@/lib/auth-client";
 
 function LoginForm() {
@@ -16,6 +16,8 @@ function LoginForm() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
   // Check if already logged in on page load
   useEffect(() => {
@@ -37,6 +39,12 @@ function LoginForm() {
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
       setSuccess("Email verified successfully! You can now log in.");
+      setShowEmailForm(true); // Auto-expand email form when coming from verification
+    }
+    // Handle OAuth errors
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      setError(decodeURIComponent(errorParam));
     }
   }, [searchParams]);
 
@@ -44,6 +52,47 @@ function LoginForm() {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  // ============================================
+  // GITHUB LOGIN
+  // ============================================
+  const handleGitHubLogin = async () => {
+    setError("");
+    setSocialLoading("github");
+
+    try {
+      await authClient.signIn.social({
+        provider: "github",
+        callbackURL: "/dashboard",
+      });
+    } catch (err) {
+      console.error("GitHub login error:", err);
+      setError(err instanceof Error ? err.message : "GitHub login failed");
+      setSocialLoading(null);
+    }
+  };
+
+  // ============================================
+  // GOOGLE LOGIN
+  // ============================================
+  const handleGoogleLogin = async () => {
+    setError("");
+    setSocialLoading("google");
+
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard",
+      });
+    } catch (err) {
+      console.error("Google login error:", err);
+      setError(err instanceof Error ? err.message : "Google login failed");
+      setSocialLoading(null);
+    }
+  };
+
+  // ============================================
+  // EMAIL/PASSWORD LOGIN
+  // ============================================
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -65,7 +114,6 @@ function LoginForm() {
         throw new Error(signInError.message || "Login failed");
       }
 
-      // Check for user in response (Better Auth returns { user, token, ... })
       if (data?.user) {
         setSuccess("Login successful! Redirecting...");
         window.location.href = "/dashboard";
@@ -104,66 +152,111 @@ function LoginForm() {
           </div>
         )}
 
-        <form className="my-6 space-y-4" onSubmit={handleSubmit}>
-          <LabelInputContainer>
-            <Label htmlFor="email" className="text-white">Email</Label>
-            <Input
-              id="email"
-              placeholder="abc@gmail.com"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              style={{ backgroundColor: "#171717", borderColor: "#3A3A3A" }}
-            />
-          </LabelInputContainer>
+        <div className="my-6 space-y-4">
 
-          <LabelInputContainer>
-            <Label htmlFor="password" className="text-white">Password</Label>
-            <Input
-              id="password"
-              placeholder="••••••••"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              style={{ backgroundColor: "#171717", borderColor: "#3A3A3A" }}
-            />
-          </LabelInputContainer>
 
-          <div className="flex flex-col items-center space-y-2 mt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative h-10 w-48 rounded-md bg-black text-white font-medium shadow-[0px_1px_0px_0px_#00000040_inset,0px_-1px_0px_0px_#00000040_inset] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Logging in..." : "Login →"}
-              <BottomGradient />
-            </button>
+          {/* Google - Primary Option */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={socialLoading === "google"}
+            className="group/btn shadow-input relative flex h-12 w-full items-center justify-center space-x-3 rounded-md bg-gray-900 px-4 font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <IconBrandGoogle className="h-5 w-5 text-white" />
+            <span className="text-sm text-white">
+              {socialLoading === "google" ? "Connecting..." : "Continue with Google"}
+            </span>
+            <BottomGradient />
+          </button>
 
-            <p className="text-sm text-gray-400 mt-2">
-              Don&apos;t have an account?{" "}
-              <a href="/signup" className="text-cyan-500 hover:underline">Sign up</a>
-            </p>
+          
+          {/* GitHub - Primary Option */}
+          <button
+            type="button"
+            onClick={handleGitHubLogin}
+            disabled={socialLoading === "github"}
+            className="group/btn shadow-input relative flex h-12 w-full items-center justify-center space-x-3 rounded-md bg-gray-900 px-4 font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <IconBrandGithub className="h-5 w-5 text-white" />
+            <span className="text-sm text-white">
+              {socialLoading === "github" ? "Connecting..." : "Continue with GitHub"}
+            </span>
+            <BottomGradient />
+          </button>
+
+          <div className="my-6 flex items-center">
+            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-gray-600 to-transparent" />
+            <span className="px-4 text-sm text-gray-500">or</span>
+            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-gray-600 to-transparent" />
           </div>
 
-          <div className="my-6 h-[1px] w-full bg-gradient-to-r from-transparent via-gray-600 to-transparent" />
+          {/* Email Option - Expandable */}
+          <button
+            type="button"
+            onClick={() => setShowEmailForm(!showEmailForm)}
+            className="group/btn shadow-input relative flex h-12 w-full items-center justify-center space-x-3 rounded-md bg-transparent border border-gray-700 px-4 font-medium text-white hover:bg-gray-900/50 transition-colors"
+          >
+            <IconMail className="h-5 w-5 text-white" />
+            <span className="text-sm text-white">Continue with Email</span>
+            {showEmailForm ? (
+              <IconChevronUp className="h-4 w-4 text-gray-400 ml-auto" />
+            ) : (
+              <IconChevronDown className="h-4 w-4 text-gray-400 ml-auto" />
+            )}
+          </button>
 
-          <div className="flex flex-col space-y-4">
-            <button type="button" disabled className="flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 text-white opacity-50 cursor-not-allowed">
-              <IconBrandGithub className="h-4 w-4" />
-              <span className="text-sm">GitHub (Coming Soon)</span>
-            </button>
-            <button type="button" disabled className="flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-gray-900 px-4 text-white opacity-50 cursor-not-allowed">
-              <IconBrandGoogle className="h-4 w-4" />
-              <span className="text-sm">Google (Coming Soon)</span>
-            </button>
+          {/* Email Form - Collapsible */}
+          <div className={cn(
+            "overflow-hidden transition-all duration-300 ease-in-out",
+            showEmailForm ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
+          )}>
+            <form className="pt-4 space-y-4" onSubmit={handleSubmit}>
+              <LabelInputContainer>
+                <Label htmlFor="email" className="text-white">Email</Label>
+                <Input
+                  id="email"
+                  placeholder="abc@gmail.com"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required={showEmailForm}
+                  disabled={loading}
+                  className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  style={{ backgroundColor: "#171717", borderColor: "#3A3A3A" }}
+                />
+              </LabelInputContainer>
+
+              <LabelInputContainer>
+                <Label htmlFor="password" className="text-white">Password</Label>
+                <Input
+                  id="password"
+                  placeholder="••••••••"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required={showEmailForm}
+                  disabled={loading}
+                  className="text-white placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  style={{ backgroundColor: "#171717", borderColor: "#3A3A3A" }}
+                />
+              </LabelInputContainer>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="group/btn relative h-10 w-full rounded-md bg-black text-white font-medium shadow-[0px_1px_0px_0px_#00000040_inset,0px_-1px_0px_0px_#00000040_inset] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Logging in..." : "Login with Email →"}
+                <BottomGradient />
+              </button>
+            </form>
           </div>
-        </form>
+
+          <p className="text-sm text-gray-400 text-center pt-4">
+            Don&apos;t have an account?{" "}
+            <a href="/signup" className="text-cyan-500 hover:underline">Sign up</a>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -177,8 +270,8 @@ const LoginPage = () => (
 
 const BottomGradient = () => (
   <>
-    <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-    <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition-opacity duration-500 group-hover:opacity-100" />
+    <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition-opacity duration-500 group-hover/btn:opacity-100" />
+    <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition-opacity duration-500 group-hover/btn:opacity-100" />
   </>
 );
 

@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { FaUserCircle } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
+import { authClient } from "@/lib/auth-client";
 
 export default function DashNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -37,22 +38,9 @@ export default function DashNavbar() {
 
   // Proper logout handler
   const handleLogout = async () => {
-    setProfileOpen(false);
-    setMenuOpen(false);
-
-    try {
-      // Call backend to clear session/cookie
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      // Redirect to login page
+      await authClient.signOut();
       router.push("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+    };
 
   return (
     <Navbar className="fixed top-0 left-0 w-full z-50 bg-black">

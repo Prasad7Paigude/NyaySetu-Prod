@@ -19,6 +19,17 @@ export const auth = betterAuth({
     "https://nyay-setu-prod.vercel.app",
   ],
 
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -39,17 +50,19 @@ export const auth = betterAuth({
       expiresIn: 300,
       sendVerificationOnSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
-        const subject = type === "email-verification" 
-          ? "Verify your email - Nyaysetu AI"
-          : type === "sign-in" 
-          ? "Sign in OTP - Nyaysetu AI"
-          : "Reset your password - Nyaysetu AI";
-        
-        const message = type === "email-verification"
-          ? "Please use this code to verify your email address."
-          : type === "sign-in"
-          ? "Please use this code to sign in to your account."
-          : "Please use this code to reset your password.";
+        const subject =
+          type === "email-verification"
+            ? "Verify your email - Nyaysetu AI"
+            : type === "sign-in"
+            ? "Sign in OTP - Nyaysetu AI"
+            : "Reset your password - Nyaysetu AI";
+
+        const message =
+          type === "email-verification"
+            ? "Please use this code to verify your email address."
+            : type === "sign-in"
+            ? "Please use this code to sign in to your account."
+            : "Please use this code to reset your password.";
 
         try {
           await resend.emails.send({

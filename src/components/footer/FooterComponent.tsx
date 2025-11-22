@@ -45,17 +45,7 @@ export default function FooterComponent() {
           </div>
 
           {/* Call-to-Action */}
-          <div className="flex flex-col gap-2">
-            <h3 className="text-lg font-semibold">Join Us</h3>
-            <div className="flex gap-2 mt-2">
-              <Link href="/login">
-                <Button className="bg-white text-black">Log In</Button>
-              </Link>
-              <Link href="/signup">
-                <ShimmerButton>Sign Up</ShimmerButton>
-              </Link>
-            </div>
-          </div>
+              
         </div>
 
         {/* Bottom Section */}
