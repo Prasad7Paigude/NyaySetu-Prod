@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useCallback, useEffect } from "react"
@@ -87,8 +88,7 @@ export function MagicCard({
           `,
         }}
       />
-       {/* updated line from "bg-background" to "bg-black" */}
-      <div className="!bg-[#0A0A0A] [&>*]:!bg-[#0A0A0A] [&>*]:!p-0 absolute inset-px rounded-[inherit]" />  
+      <div className="absolute inset-px rounded-[inherit] bg-white dark:bg-[#0A0A0A]" />  
       <motion.div
         className="pointer-events-none absolute inset-px rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{

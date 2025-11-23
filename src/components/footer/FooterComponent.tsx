@@ -1,3 +1,4 @@
+
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ export default function FooterComponent() {
   ];
 
   return (
-    <footer className="bg-black text-white border-t border-gray-800">
+    <footer className="bg-white dark:bg-black text-gray-900 dark:text-white border-t border-gray-200 dark:border-gray-800 transition-colors">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8">
@@ -23,7 +24,7 @@ export default function FooterComponent() {
               <img src="/logo2.png" alt="logo" width={40} height={40} />
               <span className="text-xl font-semibold">NyaySetu AI</span>
             </Link>
-            <p className="max-w-xs text-gray-400">
+            <p className="max-w-xs text-gray-600 dark:text-gray-400">
               Empowering AI-driven solutions for smarter business and learning.
             </p>
           </div>
@@ -36,7 +37,7 @@ export default function FooterComponent() {
                 <Link
                   key={idx}
                   href={item.link}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   {item.name}
                 </Link>
@@ -49,10 +50,11 @@ export default function FooterComponent() {
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-12 border-t border-gray-800 pt-6 text-center text-gray-500 text-sm">
+        <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-6 text-center text-gray-600 dark:text-gray-500 text-sm">
           &copy; {new Date().getFullYear()} NyaySetu AI. All rights reserved.
         </div>
       </div>
     </footer>
   );
 }
+
