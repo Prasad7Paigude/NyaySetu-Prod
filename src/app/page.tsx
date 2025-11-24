@@ -4,6 +4,8 @@ import NavbarComponent from "@/components/navbar/NavbarComponent";
 import { MacbookScroll } from "@/components/ui/macbook-scroll";
 import FooterComponent from "@/components/footer/FooterComponent";
 import { MagicCard } from "@/components/ui/magic-card";
+import { ShinyButton } from "@/components/ui/shiny-button";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -24,10 +26,10 @@ export default function Home() {
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-[1400px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-[1400px] mx-auto">
           {/* Card 1 – Chatbot */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -49,13 +51,18 @@ export default function Home() {
                 Acts as a legal guidance chatbot that explains complex IPC sections,
                 legal terms, and document purposes in simple English.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  Launch Chatbot
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
 
 
           {/* Card 2 – IPC Section Prediction */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -80,12 +87,17 @@ export default function Home() {
                 Automatically predicts the most relevant IPC Section(s) based on
                 a user’s incident description.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  Start Prediction
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
 
           {/* Card 3 – Legal Draft Generator */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -111,12 +123,17 @@ export default function Home() {
                 Automates the creation of legal documents using predefined
                 templates and dynamic questioning.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  Generate Draft
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
 
           {/* Card 4 – Law & Judgement Updation */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -141,6 +158,11 @@ export default function Home() {
                 Automatically fetches legal news, updates, and judgments;
                 delivered via website or newsletter.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  View Updates
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
         </div>
@@ -164,10 +186,10 @@ export default function Home() {
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-[1400px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-[1400px] mx-auto">
           {/* Card 1 – Smart Automated Document */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -188,12 +210,17 @@ export default function Home() {
               <p className="text-sm text-gray-600 dark:text-gray-300 flex-grow">
                 Intelligent document processing with AI-powered analysis, formatting, and legal compliance checking.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  Start Processing
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
 
           {/* Card 2 – Multi Agent Collaboration */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -217,12 +244,17 @@ export default function Home() {
               <p className="text-sm text-gray-600 dark:text-gray-300 flex-grow">
                 Coordinated AI agents working together to provide comprehensive legal solutions and insights.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  Collaborate
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
 
           {/* Card 3 – Agentic Approach */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -247,12 +279,17 @@ export default function Home() {
               <p className="text-sm text-gray-600 dark:text-gray-300 flex-grow">
                 Advanced AI agents that autonomously handle complex legal tasks with intelligent decision-making capabilities.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  Explore Agents
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
 
           {/* Card 4 – 24/7 Availability */}
           <MagicCard className="w-full h-auto hover:scale-105 transition-transform">
-            <div className="p-6 text-gray-900 dark:text-white text-left flex flex-col h-full">
+            <div className="p-6 text-gray-900 dark:text-white flex flex-col h-full">
               {/* Icon */}
               <div className="mb-4">
                 <svg
@@ -276,6 +313,11 @@ export default function Home() {
               <p className="text-sm text-gray-600 dark:text-gray-300 flex-grow">
                 Round-the-clock legal assistance and document processing without any downtime.
               </p>
+              <Link href="/login" className="w-full">
+                <ShinyButton className="mt-4 bg-black dark:bg-black text-white">
+                  Get Help Now
+                </ShinyButton>
+              </Link>
             </div>
           </MagicCard>
         </div>
