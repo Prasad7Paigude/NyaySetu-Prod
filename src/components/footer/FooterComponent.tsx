@@ -45,7 +45,7 @@ export default function FooterComponent() {
   const logoSrc = mounted && resolvedTheme === "dark" ? "/logo2.png" : "/logo.png";
 
   return (
-    <footer className="bg-white dark:bg-black text-gray-900 dark:text-white border-t border-gray-200 dark:border-gray-800 transition-colors">
+    <footer className="bg-background text-foreground border-t-2 border-accent transition-colors">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Brand Section */}
@@ -124,8 +124,8 @@ export default function FooterComponent() {
               <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
                 <IconMapPin size={18} className="mt-0.5 shrink-0" />
                 <span>
-                  Legal Tech Hub,<br/>
-                  Hinjewadi Phase 1,<br/>
+                  Legal Tech Hub,<br />
+                  Hinjewadi Phase 1,<br />
                   Pune, Maharashtra 411057
                 </span>
               </li>

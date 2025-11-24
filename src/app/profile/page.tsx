@@ -26,8 +26,8 @@ export default function ProfilePage() {
 
   if (isPending || !session) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-white text-lg">Checking authentication...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-foreground text-lg">Checking authentication...</p>
       </div>
     );
   }
@@ -38,40 +38,39 @@ export default function ProfilePage() {
     <>
       <LoggedNav />
 
-      <div className="min-h-screen bg-white dark:bg-black pt-24 px-4 pb-12 flex flex-col items-center">
+      <div className="min-h-screen bg-background pt-24 px-4 pb-12 flex flex-col items-center">
         {/* Header */}
         <div className="text-center mb-12 max-w-2xl">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Welcome, {user.name?.split(" ")[0] || "User"}!
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
+          <p className="text-muted-foreground text-lg">
             Your personal dashboard for Nyaysetu AI.
           </p>
         </div>
 
         {/* Profile Card */}
-        {/* <NeonGradientCard className="w-full max-w-md !bg-white dark:!bg-[#171717] [&>*]:!bg-white dark:[&>*]:!bg-[#171717]"> */}
-        <MagicCard className="w-full max-w-md !bg-white dark:!bg-[#171717] [&>*]:!bg-white dark:[&>*]:!bg-[#171717]">
+        <MagicCard className="w-full max-w-md bg-card">
           <div className="p-6 flex flex-col items-center">
             {/* User Name */}
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
               {user.name || "User"}
             </h2>
 
             {/* Account info */}
             <div className="space-y-2 w-full text-left">
               <div className="flex">
-                <span className="text-gray-600 dark:text-gray-400 font-medium w-28">Name:</span>
-                <span className="text-gray-900 dark:text-white">{user.name || "N/A"}</span>
+                <span className="text-muted-foreground font-medium w-28">Name:</span>
+                <span className="text-foreground">{user.name || "N/A"}</span>
               </div>
 
               <div className="flex">
-                <span className="text-gray-600 dark:text-gray-400 font-medium w-28">Email:</span>
-                <span className="text-gray-900 dark:text-white">{user.email}</span>
+                <span className="text-muted-foreground font-medium w-28">Email:</span>
+                <span className="text-foreground">{user.email}</span>
               </div>
 
               <div className="flex">
-                <span className="text-gray-600 dark:text-gray-400 font-medium w-28">Email Status:</span>
+                <span className="text-muted-foreground font-medium w-28">Email Status:</span>
                 <span className={user.emailVerified ? "text-green-500" : "text-yellow-500"}>
                   {user.emailVerified ? "Verified ✓" : "Pending"}
                 </span>
@@ -86,7 +85,6 @@ export default function ProfilePage() {
               Logout
             </Button>
           </div>
-        {/* </NeonGradientCard> */}
         </MagicCard>
 
         {/* Success Message */}

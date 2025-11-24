@@ -12,7 +12,7 @@ export const ShinyButton = ({ children, className, ...props }: ShinyButtonProps)
     return (
         <button
             className={cn(
-                "group/btn relative h-10 w-full rounded-md bg-black text-white font-medium shadow-[0px_1px_0px_0px_#00000040_inset,0px_-1px_0px_0px_#00000040_inset] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center",
+                "group/btn relative h-10 w-full rounded-md bg-primary text-primary-foreground font-medium shadow-[0px_1px_0px_0px_#00000040_inset,0px_-1px_0px_0px_#00000040_inset] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center",
                 className
             )}
             {...props}

@@ -50,10 +50,10 @@ export default function NavbarComponent() {
 
         <div className="flex items-center gap-4">
           <AnimatedThemeToggler
-            className="relative z-50 cursor-pointer text-2xl p-1 rounded-full transition-colors text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300"
+            className="relative z-50 cursor-pointer text-2xl p-1 rounded-full transition-colors text-foreground hover:text-muted-foreground"
           />
           <NavbarButton href="/login" variant="secondary">
-            <Button className="dark:bg-black dark:text-white dark:hover:bg-gray-900">Log In</Button>
+            <Button className="bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground hover:bg-primary/90 dark:hover:bg-accent/90">Log In</Button>
           </NavbarButton>
 
           <Link href="/signup">
@@ -68,7 +68,7 @@ export default function NavbarComponent() {
           <NavbarLogo isScrolled={isScrolled} />
           <div className="flex items-center gap-2">
             <AnimatedThemeToggler
-              className="text-xl p-1 transition-colors text-gray-700 dark:text-white"
+              className="text-xl p-1 transition-colors text-foreground"
             />
             <MobileNavToggle
               isOpen={menuOpen}
@@ -83,7 +83,7 @@ export default function NavbarComponent() {
             <a
               key={index}
               href={item.link}
-              className="text-lg font-medium text-gray-900 dark:text-neutral-200"
+              className="text-lg font-medium text-foreground"
               onClick={() => setMenuOpen(false)}
             >
               {item.name}

@@ -9,16 +9,16 @@ export default function AboutPage() {
   return (
     <>
       <DashNavbar />
-   
-      <div className="min-h-screen bg-white dark:bg-black mt-16 pb-8 transition-colors duration-300">
+
+      <div className="min-h-screen bg-background mt-16 pb-8 transition-colors duration-300">
         {/* Hero Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="flex items-center gap-4 mb-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground">
               About NyaySetu
             </h1>
           </div>
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl leading-relaxed">
             Smart Legal Automation Platform empowering citizens with AI-driven
             legal guidance, document automation, and real-time legal updates.
             Breaking down barriers to legal access in India.
@@ -34,12 +34,12 @@ export default function AboutPage() {
                 Feature 01
               </h2>
 
-              <p className="text-xl mb-4 font-bold text-gray-900 dark:text-white">
+              <p className="text-xl mb-4 font-bold text-foreground">
                 Legal Clause & IPC Explainability Chatbot
               </p>
 
               <div className="text-sm prose prose-sm dark:prose-invert mb-6">
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   Your personal legal assistant that simplifies complex IPC
                   sections, legal terms, and documents into plain English. Get
                   instant guidance on legal clauses, incident analysis, and
@@ -48,16 +48,16 @@ export default function AboutPage() {
               </div>
 
               <MagicCard className="w-full mb-6 rounded-lg">
-                <div className="p-6 text-gray-900 dark:text-white">
+                <div className="p-6 text-foreground">
                   <div className="text-4xl mb-4">🤖</div>
                   <h3 className="text-lg font-semibold mb-4">
                     Core Capabilities
                   </h3>
-                  <ul className="space-y-3 text-gray-600 dark:text-gray-300">
+                  <ul className="space-y-3 text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <span className="text-green-400 mt-1">✓</span>
                       <span>
-                        <strong className="text-gray-900 dark:text-white">
+                        <strong className="text-foreground">
                           Simplify IPC Sections:
                         </strong>{" "}
                         Converts complex legal text into plain English
@@ -66,7 +66,7 @@ export default function AboutPage() {
                     <li className="flex items-start gap-2">
                       <span className="text-green-400 mt-1">✓</span>
                       <span>
-                        <strong className="text-gray-900 dark:text-white">
+                        <strong className="text-foreground">
                           Document Explainability:
                         </strong>{" "}
                         Highlights meaning of terms in FIRs, RTIs, Notices, Bail
@@ -76,14 +76,14 @@ export default function AboutPage() {
                     <li className="flex items-start gap-2">
                       <span className="text-green-400 mt-1">✓</span>
                       <span>
-                        <strong className="text-gray-900 dark:text-white">Incident Analysis:</strong>{" "}
+                        <strong className="text-foreground">Incident Analysis:</strong>{" "}
                         Guides on applicable laws and next actions
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-green-400 mt-1">✓</span>
                       <span>
-                        <strong className="text-gray-900 dark:text-white">Legal Research:</strong>{" "}
+                        <strong className="text-foreground">Legal Research:</strong>{" "}
                         Answers FAQs using comprehensive knowledge base
                       </span>
                     </li>
@@ -93,7 +93,7 @@ export default function AboutPage() {
 
               <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <MagicCard className="w-full mb-6 rounded-lg">
-                  <div className="p-5 text-gray-900 dark:text-white text-left flex flex-col">
+                  <div className="p-5 text-foreground text-left flex flex-col">
                     <div className="mb-4">
                       <svg
                         width="38"
@@ -115,7 +115,7 @@ export default function AboutPage() {
                     <h4 className="text-lg font-semibold mb-2">
                       Multi-Format Input
                     </h4>
-                    <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                    <ul className="text-sm text-muted-foreground space-y-2">
                       <li>📝 Text query (typed input)</li>
                       <li>🎤 Voice query (speech-to-text)</li>
                       <li>📄 PDF, DOCX, TXT documents</li>
@@ -125,7 +125,7 @@ export default function AboutPage() {
                 </MagicCard>
 
                 <MagicCard className="w-full mb-6 rounded-lg">
-                  <div className="p-5 text-gray-900 dark:text-white text-left flex flex-col">
+                  <div className="p-5 text-foreground text-left flex flex-col">
                     <div className="mb-4">
                       <svg
                         width="38"
@@ -141,7 +141,7 @@ export default function AboutPage() {
                       </svg>
                     </div>
                     <h4 className="text-lg font-semibold mb-2">Output Modes</h4>
-                    <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                    <ul className="text-sm text-muted-foreground space-y-2">
                       <li>💬 Text-based chatbot reply</li>
                       <li>🔊 Voice-based output (TTS)</li>
                       <li>🎯 Interactive Q&A for clarity</li>
@@ -177,12 +177,12 @@ export default function AboutPage() {
                 Feature 02
               </h2>
 
-              <p className="text-xl mb-4 font-bold text-gray-900 dark:text-white">
+              <p className="text-xl mb-4 font-bold text-foreground">
                 IPC Section Prediction Agent
               </p>
 
               <div className="text-sm prose prose-sm dark:prose-invert mb-6">
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   Advanced AI agent that automatically identifies applicable IPC
                   sections from your incident description. Uses state-of-the-art
                   NLP to extract entities and predict relevant laws with
@@ -191,7 +191,7 @@ export default function AboutPage() {
               </div>
 
               <MagicCard className="w-full mb-6 rounded-lg">
-                <div className="p-6 text-gray-900 dark:text-white">
+                <div className="p-6 text-foreground">
                   <div className="text-4xl mb-4">⚖️</div>
                   <h3 className="text-lg font-semibold mb-4">
                     How It Works
@@ -229,7 +229,7 @@ export default function AboutPage() {
                           {item.step}
                         </div>
                         <div className="flex-1 pt-1">
-                          <span className="text-gray-600 dark:text-gray-300">
+                          <span className="text-muted-foreground">
                             {item.icon} {item.text}
                           </span>
                         </div>
@@ -239,10 +239,10 @@ export default function AboutPage() {
                 </div>
               </MagicCard>
 
-             <MagicCard className="w-full mb-6 rounded-lg">
-                <div className="p-5 text-gray-900 dark:text-white">
+              <MagicCard className="w-full mb-6 rounded-lg">
+                <div className="p-5 text-foreground">
                   <h4 className="font-semibold mb-3">Key Features</h4>
-                  <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-gray-300">
+                  <div className="grid md:grid-cols-2 gap-3 text-sm text-muted-foreground">
                     <div>✨ Multi-format input support</div>
                     <div>✨ Entity extraction with NLP</div>
                     <div>✨ RAG-based retrieval system</div>
@@ -279,12 +279,12 @@ export default function AboutPage() {
                 Feature 03
               </h2>
 
-              <p className="text-xl mb-4 font-bold text-gray-900 dark:text-white">
+              <p className="text-xl mb-4 font-bold text-foreground">
                 Legal Draft Generation Automation
               </p>
 
               <div className="text-sm prose prose-sm dark:prose-invert mb-6">
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   Automate creation of legal documents using AI-powered templates
                   and dynamic questioning. Generate RTI applications, bail
                   petitions, notices, and more with intelligent form filling and
@@ -293,12 +293,12 @@ export default function AboutPage() {
               </div>
 
               <MagicCard className="w-full mb-6 rounded-lg">
-                <div className="p-6 text-gray-900 dark:text-white">
+                <div className="p-6 text-foreground">
                   <div className="text-4xl mb-4">📝</div>
                   <h3 className="text-lg font-semibold mb-4">
                     Document Types Supported
                   </h3>
-                  <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-gray-300">
+                  <div className="grid md:grid-cols-2 gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <span className="text-blue-400">📋</span> RTI Applications
                     </div>
@@ -399,12 +399,12 @@ export default function AboutPage() {
                   },
                 ].map((section, idx) => (
                   <MagicCard className="w-full mb-6 rounded-lg" key={idx}>
-                    <div className="p-4 text-gray-900 dark:text-white text-left flex flex-col">
+                    <div className="p-4 text-foreground text-left flex flex-col">
                       <div className="mb-3">{section.icon}</div>
                       <h4 className="font-semibold mb-3 text-sm">
                         {section.title}
                       </h4>
-                      <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                      <ul className="text-xs text-muted-foreground space-y-1">
                         {section.items.map((item, i) => (
                           <li key={i}>• {item}</li>
                         ))}
@@ -440,12 +440,12 @@ export default function AboutPage() {
                 Feature 04
               </h2>
 
-              <p className="text-xl mb-4 font-bold text-gray-900 dark:text-white">
+              <p className="text-xl mb-4 font-bold text-foreground">
                 Law & Judgment Update Automation
               </p>
 
               <div className="text-sm prose prose-sm dark:prose-invert mb-6">
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   Stay informed with automated legal news aggregation and
                   personalized newsletters. Get daily updates on new judgments,
                   law amendments, and legal developments categorized by practice
@@ -454,26 +454,26 @@ export default function AboutPage() {
               </div>
 
               <MagicCard className="w-full mb-6 rounded-lg">
-                <div className="p-6 text-gray-900 dark:text-white">
+                <div className="p-6 text-foreground">
                   <div className="text-4xl mb-4">📰</div>
                   <h3 className="text-xl font-bold mb-4">Newsletter Features</h3>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">🔍</span>
-                        <span className="text-gray-600 dark:text-gray-300">
+                        <span className="text-muted-foreground">
                           Intelligent categorization
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">📊</span>
-                        <span className="text-gray-600 dark:text-gray-300">
+                        <span className="text-muted-foreground">
                           AI-powered summarization
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">🔔</span>
-                        <span className="text-gray-600 dark:text-gray-300">
+                        <span className="text-muted-foreground">
                           Custom frequency options
                         </span>
                       </div>
@@ -481,17 +481,17 @@ export default function AboutPage() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">🎯</span>
-                        <span className="text-gray-600 dark:text-gray-300">
+                        <span className="text-muted-foreground">
                           Personalized updates
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">📚</span>
-                        <span className="text-gray-600 dark:text-gray-300">Searchable archive</span>
+                        <span className="text-muted-foreground">Searchable archive</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">✉️</span>
-                        <span className="text-gray-600 dark:text-gray-300">
+                        <span className="text-muted-foreground">
                           Multi-channel delivery
                         </span>
                       </div>
@@ -501,9 +501,9 @@ export default function AboutPage() {
               </MagicCard>
 
               <MagicCard className="w-full mb-6 rounded-lg">
-                <div className="p-6 text-gray-900 dark:text-white">
+                <div className="p-6 text-foreground">
                   <h4 className="font-semibold mb-4">Data Sources</h4>
-                  <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                  <div className="space-y-3 text-sm text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <span className="text-blue-400 mt-1">→</span>
                       <span>Official government portals & APIs</span>
@@ -547,11 +547,11 @@ export default function AboutPage() {
             {/* Footer Section */}
             <div className="mb-10">
               <MagicCard className="w-full mb-6 rounded-lg">
-                <div className="p-8 text-gray-900 dark:text-white text-center">
+                <div className="p-8 text-foreground text-center">
                   <h3 className="text-2xl md:text-3xl font-bold mb-4">
                     Empowering Legal Access for All
                   </h3>
-                  <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
+                  <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
                     NyaySetu bridges the gap between complex legal systems and
                     citizens, making justice accessible through AI-powered
                     automation.

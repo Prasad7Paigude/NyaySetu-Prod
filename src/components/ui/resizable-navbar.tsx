@@ -113,8 +113,8 @@ export const NavBody = ({ children, className, visible, isScrolled }: NavBodyPro
       className={cn(
         "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full px-4 py-2 lg:flex transition-all duration-300",
         visible
-          ? "bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]"
-          : "bg-transparent dark:bg-black/90 backdrop-blur-md border border-transparent",
+          ? "bg-background/70 backdrop-blur-xl border border-border/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]"
+          : "bg-transparent dark:bg-transparent backdrop-blur-md border border-transparent",
         className,
       )}
     >
@@ -132,7 +132,7 @@ export const NavItems = ({ items, className, onItemClick, isScrolled }: NavItems
       onMouseLeave={() => setHovered(null)}
       className={cn(
         "hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium transition duration-200 lg:flex lg:space-x-2",
-        "text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300",
+        "text-foreground hover:text-muted-foreground",
         className,
       )}
     >
@@ -150,7 +150,7 @@ export const NavItems = ({ items, className, onItemClick, isScrolled }: NavItems
               onClick={onItemClick}
               className={cn(
                 "relative px-4 py-2 cursor-pointer",
-                "text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
+                "text-foreground hover:text-muted-foreground"
               )}
               href={item.link || "#"}
             >
@@ -159,7 +159,7 @@ export const NavItems = ({ items, className, onItemClick, isScrolled }: NavItems
                   layoutId="hovered"
                   className={cn(
                     "absolute inset-0 h-full w-full rounded-full",
-                    isScrolled ? "bg-gray-200/50 dark:bg-gray-700/50" : "bg-gray-700/30"
+                    isScrolled ? "bg-muted/50" : "bg-muted/30"
                   )}
                 />
               )}
@@ -172,13 +172,13 @@ export const NavItems = ({ items, className, onItemClick, isScrolled }: NavItems
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
-                className="absolute top-full left-0 mt-2 w-40 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl text-gray-900 dark:text-white shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] z-50 border border-gray-200/50 dark:border-white/10 overflow-hidden"
+                className="absolute top-full left-0 mt-2 w-40 rounded-xl bg-background/80 backdrop-blur-xl text-foreground shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] z-50 border border-border/50 overflow-hidden"
               >
                 {item.submenu?.map((subItem, subIdx) => (
                   <a
                     key={subIdx}
                     href={subItem.link}
-                    className="block px-4 py-2 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                    className="block px-4 py-2 hover:bg-muted/50 transition-colors"
                     onClick={onItemClick}
                   >
                     {subItem.name}
@@ -208,8 +208,8 @@ export const MobileNav = ({ children, className, visible, isScrolled }: MobileNa
       className={cn(
         "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between px-0 py-2 lg:hidden transition-all duration-300",
         visible
-          ? "bg-white/70 dark:bg-neutral-950/70 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]"
-          : "bg-transparent dark:bg-black/90 backdrop-blur-md border border-transparent",
+          ? "bg-background/70 backdrop-blur-xl border border-border/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]"
+          : "bg-transparent dark:bg-transparent backdrop-blur-md border border-transparent",
         className,
       )}
     >
@@ -240,7 +240,7 @@ export const MobileNavMenu = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className={cn(
-          "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-4 rounded-lg bg-white/90 dark:bg-neutral-950/90 backdrop-blur-xl px-4 py-8 shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] border border-gray-200/50 dark:border-white/10",
+          "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-4 rounded-lg bg-background/90 backdrop-blur-xl px-4 py-8 shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] border border-border/50",
           className,
         )}
       >
@@ -258,7 +258,7 @@ export const MobileNavToggle = ({
   <IconX
     className={cn(
       "transition-colors cursor-pointer",
-      "text-gray-900 dark:text-white"
+      "text-foreground"
     )}
     onClick={onClick}
   />
@@ -266,7 +266,7 @@ export const MobileNavToggle = ({
   <IconMenu2
     className={cn(
       "transition-colors cursor-pointer",
-      "text-gray-900 dark:text-white"
+      "text-foreground"
     )}
     onClick={onClick}
   />
@@ -305,7 +305,7 @@ export const NavbarLogo = ({ isScrolled }: NavbarLogoProps) => {
       <img src={logoSrc} alt="logo" width={50} height={50} />
       <span className={cn(
         "font-medium transition-colors",
-        "text-gray-900 dark:text-white"
+        "text-foreground"
       )}>
         NyaySetu AI
       </span>

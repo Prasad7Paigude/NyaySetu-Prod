@@ -22,8 +22,8 @@ export function MagicCard({
   gradientSize = 200,
   gradientColor,
   gradientOpacity = 0.8,
-  gradientFrom = "#9E7AFF",
-  gradientTo = "#FE8BBB",
+  gradientFrom = "#CFAF6B",
+  gradientTo = "#9E7B3B",
 }: MagicCardProps) {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -80,7 +80,7 @@ export function MagicCard({
   // Theme-aware colors
   const isDark = mounted && resolvedTheme === "dark"
 
-  // Light mode: subtle gray hover. Dark mode: dark gray hover.
+  // Light mode: subtle gray hover. Dark mode: subtle dark gray hover.
   const defaultGradientColor = isDark ? "#262626" : "#F3F4F6"
   const effectiveGradientColor = gradientColor || defaultGradientColor
 
@@ -106,7 +106,7 @@ export function MagicCard({
       />
 
       {/* Background */}
-      <div className="absolute inset-px rounded-[inherit] bg-white dark:bg-[#0A0A0A]" />
+      <div className="absolute inset-px rounded-[inherit] bg-card" />
 
       {/* Spotlight Hover Effect */}
       <motion.div
