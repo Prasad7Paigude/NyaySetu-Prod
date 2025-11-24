@@ -30,7 +30,7 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto antialiased pt-4 relative">
             {/* Feature 1 */}
             <div className="mb-32">
-              <h2 className="bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full text-sm w-fit px-4 py-1 mb-4">
+              <h2 className="bg-amber-500 text-black rounded-full text-sm w-fit px-4 py-1 mb-4 font-bold">
                 Feature 01
               </h2>
 
@@ -173,7 +173,7 @@ export default function AboutPage() {
 
             {/* Feature 2 */}
             <div className="mb-32">
-              <h2 className="bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full text-sm w-fit px-4 py-1 mb-4">
+              <h2 className="bg-amber-500 text-black rounded-full text-sm w-fit px-4 py-1 mb-4 font-bold">
                 Feature 02
               </h2>
 
@@ -225,7 +225,7 @@ export default function AboutPage() {
                       },
                     ].map((item) => (
                       <div key={item.step} className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-amber-300 flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
                           {item.step}
                         </div>
                         <div className="flex-1 pt-1">
@@ -275,7 +275,7 @@ export default function AboutPage() {
 
             {/* Feature 3 */}
             <div className="mb-32">
-              <h2 className="bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full text-sm w-fit px-4 py-1 mb-4">
+              <h2 className="bg-amber-500 text-black rounded-full text-sm w-fit px-4 py-1 mb-4 font-bold">
                 Feature 03
               </h2>
 
@@ -436,7 +436,7 @@ export default function AboutPage() {
 
             {/* Feature 4 */}
             <div className="mb-32">
-              <h2 className="bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full text-sm w-fit px-4 py-1 mb-4">
+              <h2 className="bg-amber-500 text-black rounded-full text-sm w-fit px-4 py-1 mb-4 font-bold">
                 Feature 04
               </h2>
 

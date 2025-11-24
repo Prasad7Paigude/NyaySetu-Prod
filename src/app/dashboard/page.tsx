@@ -95,7 +95,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground flex-grow">
                   Get instant legal guidance for IPC sections.
                 </p>
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Launch Chatbot
                 </ShinyButton>
               </div>
@@ -114,7 +114,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground flex-grow">
                   Predict relevant IPC sections from incident details.
                 </p>
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Start Prediction
                 </ShinyButton>
               </div>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground flex-grow">
                   Generate court-ready legal drafts instantly.
                 </p>
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Generate Draft
                 </ShinyButton>
               </div>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground flex-grow">
                   Latest judgements, legal updates, amendments.
                 </p>
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   View Updates
                 </ShinyButton>
               </div>

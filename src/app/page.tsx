@@ -52,7 +52,7 @@ export default function Home() {
                 legal terms, and document purposes in simple English.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Launch Chatbot
                 </ShinyButton>
               </Link>
@@ -88,7 +88,7 @@ export default function Home() {
                 a user’s incident description.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Start Prediction
                 </ShinyButton>
               </Link>
@@ -124,7 +124,7 @@ export default function Home() {
                 templates and dynamic questioning.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Generate Draft
                 </ShinyButton>
               </Link>
@@ -159,7 +159,7 @@ export default function Home() {
                 delivered via website or newsletter.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   View Updates
                 </ShinyButton>
               </Link>
@@ -211,7 +211,7 @@ export default function Home() {
                 Intelligent document processing with AI-powered analysis, formatting, and legal compliance checking.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Start Processing
                 </ShinyButton>
               </Link>
@@ -245,7 +245,7 @@ export default function Home() {
                 Coordinated AI agents working together to provide comprehensive legal solutions and insights.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Collaborate
                 </ShinyButton>
               </Link>
@@ -280,7 +280,7 @@ export default function Home() {
                 Advanced AI agents that autonomously handle complex legal tasks with intelligent decision-making capabilities.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Explore Agents
                 </ShinyButton>
               </Link>
@@ -314,7 +314,7 @@ export default function Home() {
                 Round-the-clock legal assistance and document processing without any downtime.
               </p>
               <Link href="/login" className="w-full">
-                <ShinyButton className="mt-4 bg-primary text-primary-foreground">
+                <ShinyButton className="mt-4 bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground">
                   Get Help Now
                 </ShinyButton>
               </Link>

@@ -9,9 +9,7 @@ import {
   MobileNavHeader,
   MobileNavMenu,
   NavbarLogo,
-  NavbarButton,
 } from "@/components/ui/resizable-navbar";
-import { Button } from "@/components/ui/button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import Link from "next/link";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
@@ -52,9 +50,15 @@ export default function NavbarComponent() {
           <AnimatedThemeToggler
             className="relative z-50 cursor-pointer text-2xl p-1 rounded-full transition-colors text-foreground hover:text-muted-foreground"
           />
-          <NavbarButton href="/login" variant="secondary">
-            <Button className="bg-primary text-primary-foreground dark:bg-accent dark:text-accent-foreground hover:bg-primary/90 dark:hover:bg-accent/90">Log In</Button>
-          </NavbarButton>
+          <Link href="/login">
+            <ShimmerButton
+              background="var(--primary)"
+              shimmerColor="var(--primary-foreground)"
+              className="text-primary-foreground dark:[--bg:var(--accent)] dark:[--shimmer-color:var(--accent-foreground)] dark:text-accent-foreground"
+            >
+              Log In
+            </ShimmerButton>
+          </Link>
 
           <Link href="/signup">
             <ShimmerButton
