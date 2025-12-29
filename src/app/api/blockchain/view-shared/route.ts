@@ -25,10 +25,16 @@ export async function POST(req: NextRequest) {
         if (response.ok) {
             const data = await response.json();
 
-            // Return JSON response for Next.js to handle
-            return NextResponse.json(data, { status: 200 });
+            // Map backend keys to frontend keys
+            const mappedFiles = (data.files || []).map((f: any) => ({
+                filename: f.filename,
+                fileKey: f.file_key,
+                secureName: f.secure_name,
+            }));
+
+            return NextResponse.json({ files: mappedFiles }, { status: 200 });
         } else {
-            const error = await response.json();
+            const error = await response.json().catch(() => ({}));
             return NextResponse.json({ error: error.error || "Failed to fetch shared files" }, { status: response.status });
         }
     } catch (error) {

@@ -357,14 +357,10 @@ export default function BlockchainPage() {
                                                                 File Key: {file.fileKey}
                                                             </p>
                                                         </div>
-                                                        <div className="flex gap-2">
-                                                            <Button
-                                                                disabled={true}
-                                                                size="sm"
-                                                                className="bg-gray-400 cursor-not-allowed opacity-50 text-white"
-                                                            >
-                                                                Download
-                                                            </Button>
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                                                                View Only
+                                                            </span>
                                                             <Button
                                                                 onClick={() => setViewingFileKey(file.fileKey)}
                                                                 size="sm"
