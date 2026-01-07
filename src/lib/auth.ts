@@ -7,7 +7,7 @@ import { Resend } from "resend";
 
 const client = new MongoClient(process.env.MONGODB_URI!);
 const db = client.db(process.env.DB_NAME || "nyaysetu");
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),

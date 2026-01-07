@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const [loadingKey, setLoadingKey] = useState(true);
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
   const [loadingNewsletter, setLoadingNewsletter] = useState(true);
+  const [initializingKey, setInitializingKey] = useState(false);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -36,6 +37,27 @@ export default function ProfilePage() {
       checkNewsletterStatus();
     }
   }, [session, isPending, router]);
+
+  const handleInitKey = async () => {
+    setInitializingKey(true);
+    try {
+      const response = await fetch("/api/blockchain/init-user-key", {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSecretKey(data.blockchainKey);
+        // Refresh session to update the user object globally
+        await authClient.getSession();
+      } else {
+        alert(data.error || "Failed to initialize key");
+      }
+    } catch (error) {
+      alert("An error occurred");
+    } finally {
+      setInitializingKey(false);
+    }
+  };
 
   const checkNewsletterStatus = async () => {
     try {
@@ -187,7 +209,17 @@ export default function ProfilePage() {
                       <p className="text-xs text-yellow-500 mt-2">⚠️ Keep this key safe for blockchain access</p>
                     </div>
                   ) : (
-                    <span className="text-muted-foreground text-sm">Not available</span>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-muted-foreground text-sm italic">Key not initialized</span>
+                      <Button
+                        onClick={handleInitKey}
+                        disabled={initializingKey}
+                        size="sm"
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white w-fit"
+                      >
+                        {initializingKey ? "Initializing..." : "Generate Blockchain Key"}
+                      </Button>
+                    </div>
                   )}
                 </div>
 

@@ -1,0 +1,5 @@
+Sample User Document Keys: ["_id","name","email","emailVerified","createdAt","updatedAt","firstName","lastName"]
+ID Type: object
+Has 'id' field?: false
+Sample _id: 6921ee20a92cdc3ac27e2223
+Sample id: undefined

@@ -38,6 +38,22 @@ export default function DashboardPage() {
     }
   }, [isPending, session, router]);
 
+  // Automatically Initialize Blockchain Key (For OAuth users)
+  useEffect(() => {
+    const initKey = async () => {
+      // @ts-ignore - blockchainKey is a custom field
+      if (session?.user && !session.user.blockchainKey) {
+        try {
+          await fetch("/api/blockchain/init-user-key", { method: "POST" });
+          console.log("Blockchain key initialized for OAuth user.");
+        } catch (error) {
+          console.error("Failed to init key:", error);
+        }
+      }
+    };
+    initKey();
+  }, [session]);
+
   // Loading screen
   if (isPending) {
     return (

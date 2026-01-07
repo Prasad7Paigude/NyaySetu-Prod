@@ -169,6 +169,7 @@ export default function NewsletterPage() {
                                 disabled={loading}
                                 className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 required
+                                suppressHydrationWarning
                             />
                             <button
                                 type="submit"

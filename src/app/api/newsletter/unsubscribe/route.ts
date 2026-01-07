@@ -45,6 +45,39 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // --- Post-unsubscribe Actions ---
+
+        const webhookUrl = process.env.NEWSLETTER_SHEET_WEBHOOK_URL;
+
+        // Call Google Sheets Webhook to set status to inactive
+        if (webhookUrl) {
+            if (webhookUrl.includes("docs.google.com/spreadsheets")) {
+                console.error("❌ ERROR: NEWSLETTER_SHEET_WEBHOOK_URL is set to a Google Sheet URL, but it MUST be a Google Apps Script Web App URL (ending in /exec).");
+            } else {
+                try {
+                    const sheetResponse = await fetch(webhookUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: session.user.email,
+                            status: "inactive",
+                            mailSent: "N/A"
+                        }),
+                    });
+
+                    if (sheetResponse.ok) {
+                        console.log(`✅ Google Sheets updated (inactive) for ${session.user.email}`);
+                    } else {
+                        console.error(`❌ Google Sheets webhook returned status ${sheetResponse.status}. (Ensure you used the Apps Script /exec URL, not the Sheet URL)`);
+                    }
+                } catch (error) {
+                    console.error("❌ Failed to update Google Sheets:", error);
+                }
+            }
+        } else {
+            console.warn("⚠️ NEWSLETTER_SHEET_WEBHOOK_URL is not defined in environment variables. Google Sheets sync skipped.");
+        }
+
         return NextResponse.json({
             success: true,
             message: "Successfully unsubscribed from newsletter",
