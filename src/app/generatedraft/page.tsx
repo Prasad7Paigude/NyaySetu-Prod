@@ -14,14 +14,16 @@ import { MagicCard } from "@/components/ui/magic-card";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 
+const RENDER_API_URL = "https://draft-generator-n68p.onrender.com";
+
 interface AffidavitData {
     name: string;
     father_name: string;
-    mother_name: string;
-    spouse_name: string;
-    dob: string;
+    age: string;
+    gender: string;
     address: string;
-    residence_from: string;
+    court_name: string;
+    case_number: string;
     place: string;
     date: string;
 }
@@ -30,17 +32,16 @@ interface RTIData {
     applicant_name: string;
     guardian_name: string;
     address: string;
-    phone: string;
+    state: string;
+    authority: string;
+    pio_address: string;
     mobile: string;
+    email: string;
     fee_amount: string;
-    payment_mode: string;
-    payment_date: string;
-    favoring: string;
-    photocopy_amount: string;
-    num_pages: string;
-    cd_amount: string;
+    payment_method: string;
     bpl_status: string;
     bpl_certificate: string;
+    place: string;
     date: string;
 }
 
@@ -61,11 +62,11 @@ export default function DraftGenerationPage() {
     const [formData, setFormData] = useState<AffidavitData>({
         name: '',
         father_name: '',
-        mother_name: '',
-        spouse_name: '',
-        dob: '',
+        age: '',
+        gender: 'male',
         address: '',
-        residence_from: '',
+        court_name: '',
+        case_number: '',
         place: '',
         date: new Date().toLocaleDateString('en-IN'),
     });
@@ -75,23 +76,27 @@ export default function DraftGenerationPage() {
         applicant_name: '',
         guardian_name: '',
         address: '',
-        phone: '',
+        state: 'Maharashtra',
+        authority: '',
+        pio_address: '',
         mobile: '',
-        fee_amount: '',
-        payment_mode: '',
-        payment_date: new Date().toLocaleDateString('en-IN'),
-        favoring: '',
-        photocopy_amount: '',
-        num_pages: '',
-        cd_amount: '',
+        email: '',
+        fee_amount: '10',
+        payment_method: 'Demand Draft',
         bpl_status: 'No',
         bpl_certificate: '',
+        place: '',
         date: new Date().toLocaleDateString('en-IN'),
     });
 
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    // AI Analysis state
+    const [caseDescription, setCaseDescription] = useState("");
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState<any>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -105,6 +110,45 @@ export default function DraftGenerationPage() {
         { text: "AI has processed your document" },
         { text: "Download or get on Email" },
     ];
+
+    const handleAnalyze = async () => {
+        if (!caseDescription.trim()) {
+            setError("Please enter a description of your requirement.");
+            return;
+        }
+
+        setIsAnalyzing(true);
+        setError(null);
+        setAnalysisResult(null);
+
+        try {
+            const response = await fetch(`${RENDER_API_URL}/api/analyze`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description: caseDescription }),
+            });
+
+            if (!response.ok) throw new Error("Failed to analyze requirement");
+
+            const data = await response.json();
+            if (data.status === "success") {
+                setAnalysisResult(data.analysis);
+                // Automatically select the recommended document if possible
+                if (data.analysis.primary_document === "RTI_APPLICATION") {
+                    setSelectedDocument("Right to Information (RTI)");
+                } else if (data.analysis.primary_document === "AFFIDAVIT") {
+                    setSelectedDocument("Affidavit");
+                }
+            } else {
+                throw new Error(data.message || "Analysis failed");
+            }
+        } catch (err) {
+            console.error("Analysis error:", err);
+            setError(err instanceof Error ? err.message : "An unexpected error occurred during analysis");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     const handleDocumentSelect = (type: string) => {
         if (type === "Affidavit" || type === "Right to Information (RTI)") {
@@ -154,14 +198,16 @@ export default function DraftGenerationPage() {
         setSelectedDocument(null);
         setError(null);
         setSuccessMessage(null);
+        setCaseDescription("");
+        setAnalysisResult(null);
         setFormData({
             name: '',
             father_name: '',
-            mother_name: '',
-            spouse_name: '',
-            dob: '',
+            age: '',
+            gender: 'male',
             address: '',
-            residence_from: '',
+            court_name: '',
+            case_number: '',
             place: '',
             date: new Date().toLocaleDateString('en-IN'),
         });
@@ -169,17 +215,16 @@ export default function DraftGenerationPage() {
             applicant_name: '',
             guardian_name: '',
             address: '',
-            phone: '',
+            state: 'Maharashtra',
+            authority: '',
+            pio_address: '',
             mobile: '',
-            fee_amount: '',
-            payment_mode: '',
-            payment_date: new Date().toLocaleDateString('en-IN'),
-            favoring: '',
-            photocopy_amount: '',
-            num_pages: '',
-            cd_amount: '',
+            email: '',
+            fee_amount: '10',
+            payment_method: 'Demand Draft',
             bpl_status: 'No',
             bpl_certificate: '',
+            place: '',
             date: new Date().toLocaleDateString('en-IN'),
         });
     };
@@ -201,21 +246,46 @@ export default function DraftGenerationPage() {
         setSuccessMessage(null);
 
         try {
-            const response = await fetch('/api/generate-affidavit', {
+            // Map frontend data to Render backend expected format
+            const payload = {
+                deponent_name: formData.name,
+                father_name: formData.father_name,
+                age: formData.age,
+                gender: formData.gender,
+                address: formData.address,
+                court_name: formData.court_name,
+                case_number: formData.case_number,
+                place: formData.place,
+                statements: [
+                    `I, ${formData.name}, ${formData.gender === 'male' ? 'son' : 'daughter'} of ${formData.father_name}, solemnly affirm the following:`,
+                    `I am aged about ${formData.age} years.`,
+                    `I am a resident of ${formData.address}.`,
+                    `The purpose of this affidavit is related to: ${caseDescription || 'General legal requirement'}.`,
+                    `I verify that all information provided is true and correct.`
+                ]
+            };
+
+            const response = await fetch(`${RENDER_API_URL}/api/generate/affidavit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: 'Failed to generate PDF' }));
-                throw new Error(errorData.error || 'Failed to generate PDF');
+                throw new Error(errorData.message || errorData.error || 'Failed to generate PDF');
             }
 
-            // Get the PDF blob
-            const blob = await response.blob();
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Generation failed');
+
+            // Download the generated PDF
+            const downloadResponse = await fetch(`${RENDER_API_URL}${result.document.download_url}`);
+            if (!downloadResponse.ok) throw new Error("Failed to download generated PDF");
+
+            const blob = await downloadResponse.blob();
 
             // Create a download link
             const url = window.URL.createObjectURL(blob);
@@ -229,13 +299,13 @@ export default function DraftGenerationPage() {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            // Show success message
-            setSuccessMessage('🎉 Affidavit generated successfully! Check your downloads.');
+            // Show success message with backend notice if any
+            setSuccessMessage(`🎉 Affidavit generated successfully! ${result.message || ''}`);
 
             // Automatically upload to blockchain
             uploadToBlockchain(blob, `NyaySetu_Affidavit_${Date.now()}.pdf`);
 
-            // Reset form after 3 seconds
+            // Reset form after 5 seconds
             setTimeout(() => {
                 setSuccessMessage(null);
             }, 5000);
@@ -255,21 +325,44 @@ export default function DraftGenerationPage() {
         setSuccessMessage(null);
 
         try {
-            const response = await fetch('/api/generate-rti', {
+            // Map frontend RTI data to Render backend structure
+            const payload = {
+                name: rtiData.applicant_name,
+                address: rtiData.address,
+                state: rtiData.state,
+                authority: rtiData.authority,
+                pio_address: rtiData.pio_address,
+                info: caseDescription || "Requesting information as per RTI Act.",
+                mobile: rtiData.mobile,
+                email: rtiData.email,
+                bpl: rtiData.bpl_status === 'Yes',
+                bpl_card_no: rtiData.bpl_certificate,
+                payment_method: rtiData.payment_method,
+                fee_amount: rtiData.fee_amount || "10",
+                place: rtiData.place
+            };
+
+            const response = await fetch(`${RENDER_API_URL}/api/generate/rti`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(rtiData),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: 'Failed to generate RTI PDF' }));
-                throw new Error(errorData.error || 'Failed to generate RTI PDF');
+                throw new Error(errorData.message || errorData.error || 'Failed to generate RTI PDF');
             }
 
-            // Get the PDF blob
-            const blob = await response.blob();
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Generation failed');
+
+            // Download the generated PDF
+            const downloadResponse = await fetch(`${RENDER_API_URL}${result.document.download_url}`);
+            if (!downloadResponse.ok) throw new Error("Failed to download generated PDF");
+
+            const blob = await downloadResponse.blob();
 
             // Create a download link
             const url = window.URL.createObjectURL(blob);
@@ -284,7 +377,7 @@ export default function DraftGenerationPage() {
             document.body.removeChild(a);
 
             // Show success message
-            setSuccessMessage('🎉 RTI Application generated successfully! Check your downloads.');
+            setSuccessMessage(`🎉 RTI Application generated successfully! ${result.message || ''}`);
 
             // Automatically upload to blockchain
             uploadToBlockchain(blob, `NyaySetu_RTI_Application_${Date.now()}.pdf`);
@@ -428,10 +521,73 @@ export default function DraftGenerationPage() {
                                 </div>
 
                                 <div className="p-8 md:p-12 text-center space-y-8">
-                                    <div className="text-left space-y-1">
-                                        <h2 className="text-xl font-semibold text-primary/80">Step 1) Select Document Type</h2>
+                                    {/* AI Analysis Section */}
+                                    <div className="text-left space-y-4 bg-primary/5 p-6 rounded-xl border border-primary/10">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="bg-primary/10 p-2 rounded-lg">
+                                                <IconAlertCircle className="w-5 h-5 text-primary" />
+                                            </div>
+                                            <h2 className="text-xl font-bold text-foreground">AI Requirement Analysis</h2>
+                                        </div>
                                         <p className="text-muted-foreground text-sm">
-                                            Choose the type of legal document you want to generate
+                                            Describe your situation in detail. Our AI will analyze your requirement, suggest the right document, and outline the necessary steps.
+                                        </p>
+
+                                        <textarea
+                                            value={caseDescription}
+                                            onChange={(e) => setCaseDescription(e.target.value)}
+                                            placeholder="Example: I want to request my exam answer sheets from the university under the RTI Act..."
+                                            className="w-full h-32 px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none resize-none text-sm"
+                                        />
+
+                                        <button
+                                            onClick={handleAnalyze}
+                                            disabled={isAnalyzing || !caseDescription.trim()}
+                                            className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isAnalyzing ? (
+                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            ) : "Analyze My Requirement"}
+                                        </button>
+
+                                        {analysisResult && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                className="mt-4 p-4 bg-background rounded-lg border border-primary/20 space-y-3"
+                                            >
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-sm font-bold text-primary">Recommendation: {analysisResult.document_name}</span>
+                                                    <span className={`text-xs px-2 py-1 rounded-full ${analysisResult.complexity_score > 70 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                                        Complexity: {analysisResult.complexity_score}%
+                                                    </span>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <p className="text-xs font-bold text-foreground underline font-mono italic">AI Suggested Steps:</p>
+                                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                                        {analysisResult.recommended_approach}
+                                                    </p>
+                                                </div>
+
+                                                {analysisResult.potential_challenges?.length > 0 && (
+                                                    <div className="space-y-1">
+                                                        <p className="text-xs font-bold text-amber-600">Potential Notices/Updates:</p>
+                                                        <ul className="list-disc list-inside text-xs text-muted-foreground">
+                                                            {analysisResult.potential_challenges.map((c: string, i: number) => (
+                                                                <li key={i}>{c}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </div>
+
+                                    <div className="text-left space-y-1 pt-4">
+                                        <h2 className="text-xl font-semibold text-primary/80">Step 2) Confirm or Select Document Type</h2>
+                                        <p className="text-muted-foreground text-sm">
+                                            The AI has suggested a document above, but you can manually choose one here.
                                         </p>
                                     </div>
 
@@ -580,58 +736,37 @@ export default function DraftGenerationPage() {
 
                                             <div>
                                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Mother's Name <span className="text-red-500">*</span>
+                                                    Age <span className="text-red-500">*</span>
                                                 </label>
                                                 <input
-                                                    type="text"
-                                                    name="mother_name"
-                                                    value={formData.mother_name}
+                                                    type="number"
+                                                    name="age"
+                                                    value={formData.age}
                                                     onChange={handleInputChange}
                                                     required
                                                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="Enter mother's name"
+                                                    placeholder="Enter your age"
                                                 />
                                             </div>
 
                                             <div>
                                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Spouse Name <span className="text-muted-foreground text-xs">(Optional)</span>
+                                                    Gender <span className="text-red-500">*</span>
                                                 </label>
-                                                <input
-                                                    type="text"
-                                                    name="spouse_name"
-                                                    value={formData.spouse_name}
-                                                    onChange={handleInputChange}
+                                                <select
+                                                    name="gender"
+                                                    value={formData.gender}
+                                                    onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+                                                    required
                                                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="Enter spouse name"
-                                                />
+                                                >
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                    <option value="other">Other</option>
+                                                </select>
                                             </div>
 
-                                            <div>
-                                                <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Date of Birth <span className="text-muted-foreground text-xs">(DD/MM/YYYY)</span>
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    name="dob"
-                                                    value={formData.dob}
-                                                    onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="15/08/1990"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Address Information Section */}
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-                                            <HomeIcon />
-                                            Address Details
-                                        </h2>
-
-                                        <div className="grid grid-cols-1 gap-6">
-                                            <div>
+                                            <div className="md:col-span-2">
                                                 <label className="block text-sm font-semibold text-foreground mb-2">
                                                     Complete Address <span className="text-red-500">*</span>
                                                 </label>
@@ -645,49 +780,71 @@ export default function DraftGenerationPage() {
                                                     placeholder="Enter your complete address with city and pincode"
                                                 />
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-foreground mb-2">
-                                                        Resident Since <span className="text-muted-foreground text-xs">(Year)</span>
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="residence_from"
-                                                        value={formData.residence_from}
-                                                        onChange={handleInputChange}
-                                                        className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                        placeholder="2020"
-                                                    />
-                                                </div>
+                                    {/* Legal Context Section */}
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+                                            <HomeIcon />
+                                            Legal Context (Optional)
+                                        </h2>
 
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-foreground mb-2">
-                                                        Place <span className="text-muted-foreground text-xs">(City)</span>
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="place"
-                                                        value={formData.place}
-                                                        onChange={handleInputChange}
-                                                        className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                        placeholder="Mumbai"
-                                                    />
-                                                </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-foreground mb-2">
+                                                    Court Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="court_name"
+                                                    value={formData.court_name}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
+                                                    placeholder="e.g. Bombay High Court"
+                                                />
+                                            </div>
 
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-foreground mb-2">
-                                                        Date <span className="text-muted-foreground text-xs">(DD/MM/YYYY)</span>
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="date"
-                                                        value={formData.date}
-                                                        onChange={handleInputChange}
-                                                        className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                        placeholder="29/12/2025"
-                                                    />
-                                                </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-foreground mb-2">
+                                                    Case Number
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="case_number"
+                                                    value={formData.case_number}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
+                                                    placeholder="e.g. WP/1234/2024"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-semibold text-foreground mb-2">
+                                                    Place <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="place"
+                                                    value={formData.place}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
+                                                    placeholder="e.g. Mumbai"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-semibold text-foreground mb-2">
+                                                    Date
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="date"
+                                                    value={formData.date}
+                                                    readOnly
+                                                    className="w-full px-4 py-3 border border-border rounded-lg bg-muted text-muted-foreground outline-none"
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -851,7 +1008,7 @@ export default function DraftGenerationPage() {
                                                     value={rtiData.address}
                                                     onChange={handleRTIInputChange}
                                                     required
-                                                    rows={3}
+                                                    rows={2}
                                                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none resize-none"
                                                     placeholder="Enter your complete address"
                                                 />
@@ -859,16 +1016,21 @@ export default function DraftGenerationPage() {
 
                                             <div>
                                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Phone Number
+                                                    State <span className="text-red-500">*</span>
                                                 </label>
-                                                <input
-                                                    type="tel"
-                                                    name="phone"
-                                                    value={rtiData.phone}
+                                                <select
+                                                    name="state"
+                                                    value={rtiData.state}
                                                     onChange={handleRTIInputChange}
+                                                    required
                                                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="Landline number"
-                                                />
+                                                >
+                                                    <option value="Maharashtra">Maharashtra</option>
+                                                    <option value="Karnataka">Karnataka</option>
+                                                    <option value="Delhi">Delhi</option>
+                                                    <option value="Tamil Nadu">Tamil Nadu</option>
+                                                    <option value="Gujarat">Gujarat</option>
+                                                </select>
                                             </div>
 
                                             <div>
@@ -883,6 +1045,60 @@ export default function DraftGenerationPage() {
                                                     required
                                                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
                                                     placeholder="10-digit mobile number"
+                                                />
+                                            </div>
+
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-semibold text-foreground mb-2">
+                                                    Email Address
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    value={rtiData.email}
+                                                    onChange={handleRTIInputChange}
+                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
+                                                    placeholder="your@email.com"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* PIO Authority Section */}
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+                                            <InfoIcon />
+                                            Target Authority (PIO)
+                                        </h2>
+
+                                        <div className="grid grid-cols-1 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-foreground mb-2">
+                                                    Authority Name <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="authority"
+                                                    value={rtiData.authority}
+                                                    onChange={handleRTIInputChange}
+                                                    required
+                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
+                                                    placeholder="e.g. Municipal Corporation of Greater Mumbai"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-semibold text-foreground mb-2">
+                                                    Full PIO Address <span className="text-red-500">*</span>
+                                                </label>
+                                                <textarea
+                                                    name="pio_address"
+                                                    value={rtiData.pio_address}
+                                                    onChange={handleRTIInputChange}
+                                                    required
+                                                    rows={2}
+                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none resize-none"
+                                                    placeholder="Enter full secondary address of the office"
                                                 />
                                             </div>
                                         </div>
@@ -912,105 +1128,33 @@ export default function DraftGenerationPage() {
 
                                             <div>
                                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Payment Mode
+                                                    Payment Method
                                                 </label>
                                                 <select
-                                                    name="payment_mode"
-                                                    value={rtiData.payment_mode}
+                                                    name="payment_method"
+                                                    value={rtiData.payment_method}
                                                     onChange={handleRTIInputChange}
                                                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
                                                 >
-                                                    <option value="">Select mode</option>
                                                     <option value="Cash">Cash</option>
-                                                    <option value="DD">Demand Draft</option>
-                                                    <option value="IPO">Indian Postal Order</option>
-                                                    <option value="Online">Online</option>
+                                                    <option value="Demand Draft">Demand Draft</option>
+                                                    <option value="Indian Postal Order">Indian Postal Order</option>
+                                                    <option value="Court Fee Stamp">Court Fee Stamp</option>
                                                 </select>
                                             </div>
 
                                             <div>
                                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Payment Date
+                                                    Place <span className="text-red-500">*</span>
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    name="payment_date"
-                                                    value={rtiData.payment_date}
+                                                    name="place"
+                                                    value={rtiData.place}
                                                     onChange={handleRTIInputChange}
+                                                    required
                                                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="DD/MM/YYYY"
-                                                />
-                                            </div>
-
-                                            <div className="md:col-span-3">
-                                                <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    In Favor Of
-                                                </label>
-                                                <select
-                                                    name="favoring"
-                                                    value={rtiData.favoring}
-                                                    onChange={handleRTIInputChange}
-                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                >
-                                                    <option value="">Select authority</option>
-                                                    <option value="Municipal Corporation">Municipal Corporation</option>
-                                                    <option value="Public Information Officer">Public Information Officer</option>
-                                                    <option value="Chief Information Commissioner">Chief Information Commissioner</option>
-                                                    <option value="State Public Information Officer">State Public Information Officer</option>
-                                                    <option value="Central Public Information Officer">Central Public Information Officer</option>
-                                                </select>
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Document Requirements Section */}
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-                                            <DocumentIcon />
-                                            Document Requirements
-                                        </h2>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Photocopy Amount (₹)
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    name="photocopy_amount"
-                                                    value={rtiData.photocopy_amount}
-                                                    onChange={handleRTIInputChange}
-                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="2 per page"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    Number of Pages
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    name="num_pages"
-                                                    value={rtiData.num_pages}
-                                                    onChange={handleRTIInputChange}
-                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="Number of pages"
-                                                />
-                                            </div>
-
-                                            <div className="md:col-span-2">
-                                                <label className="block text-sm font-semibold text-foreground mb-2">
-                                                    CD/Diskette Amount (₹)
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    name="cd_amount"
-                                                    value={rtiData.cd_amount}
-                                                    onChange={handleRTIInputChange}
-                                                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground transition-all outline-none"
-                                                    placeholder="Amount if required"
+                                                    placeholder="Mumbai"
                                                 />
                                             </div>
                                         </div>
