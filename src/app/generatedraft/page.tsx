@@ -14,7 +14,7 @@ import { MagicCard } from "@/components/ui/magic-card";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 
-const RENDER_API_URL = "https://draft-generator-n68p.onrender.com";
+const RENDER_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://draft-generator-n68p.onrender.com";
 
 interface AffidavitData {
     name: string;
