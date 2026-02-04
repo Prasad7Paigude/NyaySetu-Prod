@@ -97,6 +97,8 @@ export default function DraftGenerationPage() {
     const [caseDescription, setCaseDescription] = useState("");
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<any>(null);
+    const [needsClarification, setNeedsClarification] = useState(false);
+    const [clarificationData, setClarificationData] = useState<any>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -120,6 +122,8 @@ export default function DraftGenerationPage() {
         setIsAnalyzing(true);
         setError(null);
         setAnalysisResult(null);
+        setNeedsClarification(false);
+        setClarificationData(null);
 
         try {
             const response = await fetch(`${RENDER_API_URL}/api/analyze`, {
@@ -131,13 +135,26 @@ export default function DraftGenerationPage() {
             if (!response.ok) throw new Error("Failed to analyze requirement");
 
             const data = await response.json();
-            if (data.status === "success") {
-                setAnalysisResult(data.analysis);
-                // Automatically select the recommended document if possible
-                if (data.analysis.primary_document === "RTI_APPLICATION") {
-                    setSelectedDocument("Right to Information (RTI)");
-                } else if (data.analysis.primary_document === "AFFIDAVIT") {
-                    setSelectedDocument("Affidavit");
+
+            // Check if clarification is needed
+            if (data.analysis?.status === "needs_clarification") {
+                setNeedsClarification(true);
+                setClarificationData(data.analysis);
+            } else if (data.status === "success" || data.analysis?.status === "success") {
+                const analysis = data.analysis || data;
+                setAnalysisResult(analysis);
+
+                // High confidence - automatically select and scroll to document
+                if (analysis.confidence >= 70) {
+                    if (analysis.primary_document === "RTI_APPLICATION") {
+                        setSelectedDocument("Right to Information (RTI)");
+                    } else if (analysis.primary_document === "AFFIDAVIT") {
+                        setSelectedDocument("Affidavit");
+                    }
+
+                    // Show success message
+                    setSuccessMessage(`✅ AI detected: ${analysis.document_name} (${analysis.confidence}% confidence)`);
+                    setTimeout(() => setSuccessMessage(null), 5000);
                 }
             } else {
                 throw new Error(data.message || "Analysis failed");
@@ -148,6 +165,20 @@ export default function DraftGenerationPage() {
         } finally {
             setIsAnalyzing(false);
         }
+    };
+
+    const handleClarificationChoice = (option: any) => {
+        // Set the document based on user's choice
+        if (option.leads_to === "RTI_APPLICATION") {
+            setSelectedDocument("Right to Information (RTI)");
+        } else if (option.leads_to === "AFFIDAVIT") {
+            setSelectedDocument("Affidavit");
+        }
+
+        // Clear clarification and show success
+        setNeedsClarification(false);
+        setSuccessMessage(`✅ Document selected: ${option.leads_to === "RTI_APPLICATION" ? "RTI Application" : "Affidavit"}`);
+        setTimeout(() => setSuccessMessage(null), 5000);
     };
 
     const handleDocumentSelect = (type: string) => {
@@ -554,7 +585,54 @@ export default function DraftGenerationPage() {
                                             ) : "Analyze My Requirement"}
                                         </button>
 
-                                        {analysisResult && (
+                                        {/* Clarification Questions UI */}
+                                        {needsClarification && clarificationData && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="mt-6 p-6 bg-amber-50 dark:bg-amber-900/20 rounded-lg border-2 border-amber-300 dark:border-amber-700 space-y-4"
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <div className="bg-amber-500 p-2 rounded-lg">
+                                                        <IconAlertCircle className="w-5 h-5 text-white" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h3 className="font-bold text-amber-900 dark:text-amber-200 mb-1">
+                                                            {clarificationData.message || "Need More Information"}
+                                                        </h3>
+                                                        <p className="text-sm text-amber-700 dark:text-amber-300 mb-4">
+                                                            Please help me understand better by selecting one of the options below:
+                                                        </p>
+
+                                                        {clarificationData.questions && clarificationData.questions.map((q: any, qIdx: number) => (
+                                                            <div key={qIdx} className="space-y-3">
+                                                                <p className="font-semibold text-sm text-amber-900 dark:text-amber-200">
+                                                                    {q.question}
+                                                                </p>
+                                                                <div className="space-y-2">
+                                                                    {q.options.map((option: any, oIdx: number) => (
+                                                                        <button
+                                                                            key={oIdx}
+                                                                            onClick={() => handleClarificationChoice(option)}
+                                                                            className="w-full text-left px-4 py-3 bg-white dark:bg-gray-800 rounded-lg border border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/40 hover:border-amber-500 transition-all group"
+                                                                        >
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className="w-2 h-2 rounded-full bg-amber-500 group-hover:scale-125 transition-transform"></div>
+                                                                                <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-amber-900 dark:group-hover:text-amber-200">
+                                                                                    {option.text}
+                                                                                </span>
+                                                                            </div>
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+
+                                        {analysisResult && !needsClarification && (
                                             <motion.div
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: 'auto' }}
